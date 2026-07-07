@@ -1,0 +1,167 @@
+/* ZaraiLink - fabricated demo. Self-contained, no external calls. */
+
+/*
+  Palette, radii, and shadows below match the real, public design tokens read
+  directly off this project's own frontend/src/index.css :root block. Colors
+  are copied 1:1; nothing here is invented. This is visual design language any
+  browser loading the real app already renders, not the private backend logic
+  (NLU pipeline, ranking model, customs data), which stays out of this repo
+  entirely. The real app loads 'Inter' from Google Fonts; this demo stays
+  fully self-contained and offline, so it falls back to the closest system
+  font instead of fetching that externally.
+*/
+:root {
+  --primary: #10B981;
+  --primary-hover: #059669;
+  --primary-light: #ECFDF5;
+  --bg: #FFFFFF;
+  --bg-2: #F8FAFC;
+  --bg-3: #F3F4F6;
+  --text: #1A1A1A;
+  --text-2: #6B7280;
+  --text-3: #9CA3AF;
+  --border: #E5E7EB;
+  --border-2: #D1D5DB;
+  --warning: #F59E0B;
+  --info: #3B82F6;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .1);
+  --r-card: 12px;
+  --r-btn: 8px;
+  --r-sm: 6px;
+  --wrap: 920px;
+}
+
+html { height: 100%; }
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-2);
+  color: var(--text);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--primary); }
+button { font-family: inherit; }
+
+.wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+.demo-banner {
+  background: #FEF3C7;
+  border-bottom: 1px solid var(--border);
+  color: #7C4A03;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 0;
+  text-align: center;
+}
+
+header.hero { background: var(--bg); border-bottom: 1px solid var(--border); padding: 40px 0 28px; }
+.kicker {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--text-2);
+  margin: 0 0 8px;
+}
+h1 { font-size: clamp(26px, 4vw, 36px); margin: 0 0 10px; line-height: 1.15; font-weight: 800; color: var(--text); }
+.lede { font-size: 15px; color: var(--text-2); max-width: 660px; margin: 0 0 22px; }
+
+.search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.search-row input {
+  flex: 1; min-width: 260px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-btn);
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+}
+.search-row input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, .15); }
+
+.btn {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 20px;
+  border-radius: var(--r-btn);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter .15s ease, background .15s ease;
+  background: var(--bg-3);
+  color: var(--text);
+}
+.btn--primary { background: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
+.btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn--ghost { background: var(--bg); border-color: var(--border-2); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+main { padding: 32px 0 80px; flex: 1 0 auto; width: 100%; }
+
+.stage { display: none; margin-top: 26px; }
+.stage.is-visible { display: block; }
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-md);
+  background: var(--bg);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.card h2 { margin: 0 0 14px; font-size: 17px; }
+
+.intent-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 6px 13px; font-size: 12px; font-weight: 700;
+  background: var(--bg-3); color: var(--text-2);
+}
+.pill.is-intent { background: var(--primary-light); color: var(--primary-hover); border-color: rgba(16,185,129,.35); }
+
+.entity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.entity {
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 10px 12px; background: var(--bg-2);
+}
+.entity .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); font-weight: 700; }
+.entity .v { font-size: 14px; font-weight: 600; margin-top: 3px; }
+
+.company-list { display: grid; gap: 14px; }
+.company {
+  border: 1px solid var(--border); border-radius: var(--r-card);
+  padding: 18px; background: var(--bg);
+  box-shadow: var(--shadow-sm);
+}
+.company__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.company__name { font-weight: 700; font-size: 15px; }
+.company__tag { font-size: 11px; color: var(--text-2); background: var(--bg-3); border-radius: 999px; padding: 3px 10px; margin-left: 8px; }
+.company__stats { display: flex; gap: 22px; margin: 12px 0; flex-wrap: wrap; }
+.company__stat b { display: block; font-size: 15px; }
+.company__stat span { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .05em; }
+.company__contact {
+  border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.company__contact-info { font-size: 13px; color: var(--text-2); }
+.company__contact-info b { color: var(--text); }
+
+.ledger-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.ledger-stat { border: 1px solid var(--border); border-radius: var(--r-sm); padding: 14px; background: var(--bg-2); }
+.ledger-stat b { font-size: 20px; color: var(--primary-hover); display: block; }
+.ledger-stat span { font-size: 12px; color: var(--text-2); }
+
+.token-note { font-size: 12px; color: var(--text-2); margin-top: 8px; }
+
+footer { border-top: 1px solid var(--border); padding: 24px 0; font-size: 13px; color: var(--text-2); background: var(--bg); }
+footer a { text-decoration: underline; }
