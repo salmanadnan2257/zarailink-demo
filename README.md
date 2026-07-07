@@ -38,22 +38,30 @@ computed or called over a network.
   real product's token-economy mechanic.
 - A Trade Ledger card aggregating one company's fabricated activity, matching
   the real feature's real name and purpose.
-- Styled with the real, public design tokens (emerald primary color, card
-  radius, shadows, Inter font) read directly off this project's own
-  frontend static CSS, since that's the visual design any browser loading
-  the real app already renders, not its private backend logic.
+- Rebuilt to match the real app's actual component structure, not just its
+  colors: the dark slate navbar with the emerald logo mark, nav links, a
+  token-balance pill and gradient avatar (from the real `Navbar.js`); the
+  centered "What are you looking for today?" search hero with the large pill
+  input, inset search icon, and an "AI Query Mode" detection badge (from the
+  real `SearchHome.js`); gradient-avatar company cards in a responsive grid
+  with country/sector/type badge pills, a "Verified" badge, and a full-width
+  dark "View Profile & Contacts" button (from the real `FindSuppliers.js`);
+  and a dark "Market Intelligence" header band over the Trade Ledger stats
+  (from the real `DataDashboard.js`).
 
 ## Architecture
 
 Plain HTML, CSS, and vanilla JavaScript. No build step, no framework, no
 backend, no network calls. `demo-data.js` holds the fabricated query, parse
 result, companies, and ledger data; `app.js` drives the staged reveal and the
-token-unlock interaction; `styles.css` uses the real app's own color, radius,
-and shadow values (copied from its `:root` block) so the demo reads as a
-genuine preview of the real product, not a generic mockup. The real app loads
-'Inter' from Google Fonts; this demo stays fully self-contained and offline,
-so it falls back to the closest system font instead of fetching that
-externally.
+token-unlock interaction; `styles.css` replicates the real app's own color
+tokens (from its `index.css` `:root` block) and component layouts (from its
+React components' Tailwind classes) so the demo reads as a genuine preview of
+the real product, not a generic mockup. This is visual design language any
+browser loading the real app already renders, not its private backend logic.
+The real app loads 'Inter' from Google Fonts; this demo stays fully
+self-contained and offline, so it falls back to the closest system font
+instead of fetching that externally.
 
 ## Setup
 

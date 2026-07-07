@@ -13,24 +13,46 @@
     <strong>Demo mode</strong> — fabricated example search. No live calls happen here; no real company or customs data is shown.
   </div>
 
-  <header class="hero">
+  <nav class="zl-navbar">
+    <div class="zl-navbar__inner">
+      <div class="zl-navbar__brand">
+        <span class="zl-navbar__logo" aria-hidden="true">Z</span>
+        <span class="zl-navbar__name">ZaraiLink</span>
+      </div>
+      <div class="zl-navbar__links">
+        <a href="#" class="is-active">Dashboard</a>
+        <a href="#">Intelligence</a>
+        <a href="#">Subscription</a>
+        <a href="#">Watchlist</a>
+      </div>
+      <div class="zl-navbar__right">
+        <span class="zl-token-pill">&#9889; <span id="token-balance"></span> tokens</span>
+        <span class="zl-avatar" aria-hidden="true">D</span>
+      </div>
+    </div>
+  </nav>
+
+  <header class="search-hero">
     <div class="wrap">
-      <p class="kicker">zarailink / demo</p>
-      <h1>ZaraiLink</h1>
+      <p class="eyebrow">zarailink / demo</p>
+      <h1>What are you looking for today?</h1>
       <p class="lede">
         The real system is an agricultural trade-intelligence platform: a
-        Django/DRF backend and React frontend, an NLU pipeline (intent
-        classification, entity extraction), hybrid retrieval, and a
-        learning-to-rank model over Pakistani customs trade data. It's a
-        three-person team project, and publishing it isn't one person's call
-        to make alone, so the source stays private. This page replays the
-        same search-to-ledger flow with a fabricated example.
+        Django/DRF backend and React frontend, an NLU pipeline, hybrid
+        retrieval, and a learning-to-rank model over Pakistani customs trade
+        data. It's a three-person team project, and publishing it isn't one
+        person's call to make alone, so the source stays private. This page
+        replays the same search-to-ledger flow with a fabricated example.
       </p>
-      <div class="search-row">
-        <input id="query-input" type="text" readonly>
-        <button class="btn btn--primary" id="search-btn" type="button">Search</button>
+      <div class="search-form">
+        <div class="search-pill">
+          <svg class="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="query-input" type="text" readonly>
+          <button id="search-btn" type="button">Search</button>
+        </div>
+        <span class="mode-pill">&#10024; AI Query Mode</span>
       </div>
-      <p class="token-note">Tokens available to unlock contacts: <b id="token-balance"></b></p>
+      <p class="token-note">Tokens available to unlock contacts: <b id="token-balance-2"></b></p>
     </div>
   </header>
 
@@ -44,22 +66,26 @@
     </section>
 
     <section class="stage" id="results-stage">
-      <div class="card">
-        <h2>Ranked results</h2>
+      <div class="card" style="background:transparent;border:none;box-shadow:none;padding:0">
+        <h2 style="padding-left:2px">Ranked results</h2>
         <div class="company-list" id="company-list"></div>
       </div>
     </section>
 
     <section class="stage" id="ledger-stage">
-      <div class="card">
-        <h2>Trade Ledger</h2>
+      <div class="ledger-header">
+        <p class="eyebrow">Market Intelligence</p>
+        <h2 id="ledger-title"></h2>
+        <p id="ledger-sub"></p>
+      </div>
+      <div class="ledger-body">
         <div id="ledger-body"></div>
       </div>
     </section>
 
   </main>
 
-  <footer>
+  <footer class="site-foot">
     <div class="wrap">
       This is a companion demo for a private repository (team project, no
       current publishing consent from all authors). It contains no real

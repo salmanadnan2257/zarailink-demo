@@ -8,6 +8,7 @@ let tokenBalance = DEMO.tokens.balance;
 
 function renderTokenBalance() {
   document.getElementById("token-balance").textContent = tokenBalance;
+  document.getElementById("token-balance-2").textContent = tokenBalance;
 }
 
 function renderParse() {
@@ -32,23 +33,33 @@ function renderCompanies() {
   const el = document.getElementById("company-list");
   el.innerHTML = DEMO.companies.map((c, i) => `
     <div class="company" id="company-${i}">
-      <div class="company__head">
-        <div><span class="company__name">${escapeHtml(c.name)}</span><span class="company__tag">${escapeHtml(c.tag)}</span></div>
+      <div class="company__body">
+        <div class="company__head">
+          <span class="company__avatar" aria-hidden="true">${escapeHtml(c.name.charAt(0))}</span>
+        </div>
+        <div class="company__name">${escapeHtml(c.name)}</div>
+        <div class="company__badges">
+          <span class="badge">&#128205; ${escapeHtml(c.country)}</span>
+          <span class="badge">&#127991; ${escapeHtml(c.sector)}</span>
+          <span class="badge">&#127970; ${escapeHtml(c.type)}</span>
+          ${c.verified ? `<span class="badge is-verified">&#9989; Verified</span>` : ""}
+          <span class="badge">${escapeHtml(c.tag)}</span>
+        </div>
+        <div class="company__stats">
+          <div class="company__stat"><b>${escapeHtml(c.volume)}</b><span>Volume</span></div>
+          <div class="company__stat"><b>${escapeHtml(c.avg_price)}</b><span>Avg. price</span></div>
+          <div class="company__stat"><b>${escapeHtml(c.partners)}</b><span>Partners</span></div>
+          <div class="company__stat"><b>${escapeHtml(c.growth)}</b><span>Growth</span></div>
+        </div>
       </div>
-      <div class="company__stats">
-        <div class="company__stat"><b>${escapeHtml(c.volume)}</b><span>Trade volume</span></div>
-        <div class="company__stat"><b>${escapeHtml(c.avg_price)}</b><span>Avg. price</span></div>
-        <div class="company__stat"><b>${escapeHtml(c.partners)}</b><span>Partners</span></div>
-        <div class="company__stat"><b>${escapeHtml(c.growth)}</b><span>Growth</span></div>
-      </div>
-      <div class="company__contact">
+      <div class="company__footer">
         <div class="company__contact-info" id="contact-${i}">
           ${c.unlocked
-            ? `<b>${escapeHtml(c.contact.name)}</b> &middot; ${escapeHtml(c.contact.email)} &middot; ${escapeHtml(c.contact.phone)}`
+            ? `<b>${escapeHtml(c.contact.name)}</b><br>${escapeHtml(c.contact.email)} &middot; ${escapeHtml(c.contact.phone)}`
             : `Contact details locked`}
         </div>
-        <button class="btn btn--ghost" data-unlock="${i}" ${c.unlocked ? "disabled" : ""}>
-          ${c.unlocked ? "Unlocked" : "Unlock contact (1 token)"}
+        <button class="company__view-btn" data-unlock="${i}" ${c.unlocked ? "disabled" : ""}>
+          ${c.unlocked ? "Contacts Unlocked" : "View Profile & Contacts (1 token)"}
         </button>
       </div>
     </div>
@@ -56,10 +67,10 @@ function renderCompanies() {
 }
 
 function renderLedger() {
-  const el = document.getElementById("ledger-body");
   const l = DEMO.ledger;
-  el.innerHTML = `
-    <p style="margin:0 0 14px;font-size:14px;color:var(--text-2)">Aggregated from customs transaction history for <b style="color:var(--text)">${escapeHtml(l.company)}</b>.</p>
+  document.getElementById("ledger-title").textContent = "Trade Ledger: " + l.company;
+  document.getElementById("ledger-sub").textContent = "Aggregated from customs transaction history (fabricated for this demo).";
+  document.getElementById("ledger-body").innerHTML = `
     <div class="ledger-grid">
       <div class="ledger-stat"><b>${escapeHtml(l.total_volume)}</b><span>Total volume</span></div>
       <div class="ledger-stat"><b>${escapeHtml(l.avg_price_trend)}</b><span>Avg. price trend</span></div>

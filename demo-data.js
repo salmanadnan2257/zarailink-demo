@@ -17,6 +17,10 @@ const DEMO = {
     {
       name: "Meridian AgroTrade Ltd.",
       tag: "Similar company match",
+      country: "Brazil",
+      sector: "Sweeteners",
+      type: "Manufacturer",
+      verified: true,
       volume: "4,120 MT",
       avg_price: "$742/MT",
       partners: "18",
@@ -27,6 +31,10 @@ const DEMO = {
     {
       name: "Cascade Commodities Group",
       tag: "Top ranked",
+      country: "Brazil",
+      sector: "Sweeteners",
+      type: "Trading House",
+      verified: true,
       volume: "2,860 MT",
       avg_price: "$768/MT",
       partners: "11",
@@ -37,6 +45,10 @@ const DEMO = {
     {
       name: "Sable Harvest Exports",
       tag: "Similar company match",
+      country: "Brazil",
+      sector: "Sweeteners",
+      type: "Exporter",
+      verified: false,
       volume: "1,530 MT",
       avg_price: "$791/MT",
       partners: "7",
