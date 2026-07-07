@@ -1,9 +1,9 @@
-# ZaraiLink — Demo
+# ZaraiLink: Demo
 
-A fabricated, interactive walkthrough of ZaraiLink's actual screens — the
+A fabricated, interactive walkthrough of ZaraiLink's actual screens (the
 post-login search dashboard, search results with a token-gated trade
 dashboard, the Trade Directory, a company profile with contact unlocking, and
-subscription plans — built so the product can be seen working without
+subscription plans), built so the product can be seen working without
 exposing the real system, which is private.
 
 ## Why this exists
@@ -23,7 +23,7 @@ A multi-screen static page that reproduces the real app's actual navigation
 and component structure, read directly from its source, not a single linear
 flow:
 
-- **Dashboard** — the real post-login search home (`components/Dashboard/
+- **Dashboard**: the real post-login search home (`components/Dashboard/
   Dashboard.js`): the "4 Ways to Search" method card, a live search-mode
   detector (HS code / product / AI query), an Import/Export scope toggle,
   quick-suggestion pills, a stats strip, and a features grid.
@@ -36,7 +36,7 @@ flow:
   `FindBuyers.js`): a searchable grid of company cards with country/sector/
   type badges, a "Verified Contacts" badge, and a watchlist star toggle.
 - **Company Profile** (`components/TradeDirectory/CompanyProfile.js`): stats
-  grid, products dealt in, and the real contact-unlock UI — masked/blurred
+  grid, products dealt in, and the real contact-unlock UI: masked/blurred
   phone, email, and WhatsApp rows per contact, a seniority badge derived from
   each contact's title, and a confirm → success modal flow that spends one
   token and reveals the real fabricated fields.
@@ -102,7 +102,7 @@ locked.
   version of this demo reused the real app's palette but invented its own,
   much simpler layout (a single search-to-ledger flow). Once it was clear
   that didn't read as the real product, this version was rebuilt screen by
-  screen from the actual component source instead — the real navbar
+  screen from the actual component source instead: the real navbar
   structure, the real Dashboard's method card and mode detection, the real
   Data Dashboard's sidebar and pills, and the real Company Profile's
   masked-contact pattern.
@@ -120,7 +120,7 @@ locked.
 ## What I learned
 
 Matching a product's color palette is a much lower bar than matching its
-actual information architecture — the real signal of "this looks like the
+actual information architecture: the real signal of "this looks like the
 real thing" comes from screen structure and interaction state (what's locked,
 what's masked, what a pill filter actually does), not from get the right blue.
 
@@ -128,6 +128,6 @@ what's masked, what a pill filter actually does), not from get the right blue.
 
 The real app's Trade Intelligence cluster (link prediction, node2vec
 similar-company matching, the GNN graph work the source README highlights)
-isn't represented here — only the search, directory, profile, and
+isn't represented here; only the search, directory, profile, and
 subscription screens are. That cluster is the product's most technically
 distinctive piece and would be the natural next screen to add.

@@ -46,7 +46,7 @@ function runSearch(query) {
   const mode = detectMode(q, true);
   ddUnlocked = false;
   ddActivePill = null;
-  document.getElementById("dd-title").textContent = mode === "hscode" ? "HS 1702.3000 — Dextrose" : q;
+  document.getElementById("dd-title").textContent = mode === "hscode" ? "HS 1702.3000: Dextrose" : q;
   document.getElementById("dd-sub").textContent = "Sweeteners · fabricated example results for this demo";
   document.getElementById("dd-shipment-count").textContent = `${COMPANIES.length * 14} shipments (demo)`;
   renderFilters();
