@@ -14,8 +14,20 @@
   :root block. This is visual design language any browser loading the real
   app already renders, not its private backend logic (NLU pipeline, ranking
   model, customs data, or actual API routes), which stays out of this repo
-  entirely.
+  entirely. The real app also loads 'Inter' from Google Fonts and uses Lucide
+  icon SVGs throughout; this demo self-hosts the real Inter variable font
+  (assets/fonts/) and uses matching hand-drawn SVG icons (same stroke width,
+  size, and style as Lucide's) instead of emoji, since a real screenshot of
+  the app (personal-website/assets/screenshots/zarailink.webp) showed emoji
+  read as a completely different, lower-fidelity visual language.
 */
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/inter-variable.woff2') format('woff2-variations'), url('assets/fonts/inter-variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
 :root {
   --primary: #10B981;
   --primary-hover: #059669;
@@ -112,6 +124,18 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospac
   background: linear-gradient(135deg, #34D399, var(--blue));
   display: grid; place-items: center; color: #fff; font-weight: 700; font-size: .8rem;
 }
+.zl-theme-toggle {
+  width: 32px; height: 32px; border-radius: 8px; border: none; background: none; cursor: pointer;
+  color: var(--slate-400); display: grid; place-items: center; transition: background .15s, color .15s;
+}
+.zl-theme-toggle:hover { color: #fff; background: rgba(255,255,255,.06); }
+.zl-user-menu {
+  display: flex; align-items: center; gap: 7px; cursor: pointer;
+  padding: 5px 10px 5px 5px; border-radius: 999px; transition: background .15s;
+}
+.zl-user-menu:hover { background: rgba(255,255,255,.06); }
+.zl-user-menu__name { font-size: .82rem; font-weight: 600; color: var(--slate-200, #e2e8f0); }
+.zl-user-menu svg { color: var(--slate-400); flex: none; }
 
 /* ============================ Page-level scaffolding ============================ */
 main { flex: 1 0 auto; width: 100%; }

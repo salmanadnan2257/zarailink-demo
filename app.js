@@ -51,7 +51,7 @@ function runSearch(query) {
   document.getElementById("dd-shipment-count").textContent = `${COMPANIES.length * 14} shipments (demo)`;
   renderFilters();
   renderPills();
-  document.getElementById("dd-results-wrap").innerHTML = `<p style="text-align:center;color:var(--text-2);padding:40px 0">&#9757; Select a trade perspective above</p>`;
+  document.getElementById("dd-results-wrap").innerHTML = `<p style="text-align:center;color:var(--text-2);padding:40px 0">${icon("mouse-pointer-click", 16)} Select a trade perspective above</p>`;
   switchView("results");
 }
 
@@ -89,7 +89,7 @@ function selectPill(pillId) {
   const wrap = document.getElementById("dd-results-wrap");
 
   if (!results.length) {
-    wrap.innerHTML = `<p style="text-align:center;color:var(--text-2);padding:40px 0">&#128235; No results for this trade perspective. Try another tab.</p>`;
+    wrap.innerHTML = `<p style="text-align:center;color:var(--text-2);padding:40px 0">${icon("inbox", 16)} No results for this trade perspective. Try another tab.</p>`;
     return;
   }
 
@@ -98,7 +98,7 @@ function selectPill(pillId) {
     <div id="dd-cards"></div>
     ${!ddUnlocked ? `
       <div class="unlock-banner">
-        <div class="unlock-banner__icon">&#128274;</div>
+        <div class="unlock-banner__icon">${icon("lock", 24)}</div>
         <h3>Unlock Category Intelligence</h3>
         <p>See full contact-unlock access and compare tools for every company in this result set.</p>
         <button class="btn btn--primary" type="button" id="unlock-category-btn">Unlock for 500 Tokens</button>
@@ -160,14 +160,14 @@ function companyCardHtml(c) {
       <div class="company-card__body">
         <div class="company-card__head">
           <span class="company-card__avatar" aria-hidden="true">${escapeHtml(c.name.charAt(0))}</span>
-          <button class="star-btn${watched ? " is-watched" : ""}" data-watch="${c.id}" type="button" aria-label="Watch">${watched ? "★" : "☆"}</button>
+          <button class="star-btn${watched ? " is-watched" : ""}" data-watch="${c.id}" type="button" aria-label="Watch">${icon("star", 15).replace('fill="none"', watched ? 'fill="currentColor"' : 'fill="none"')}${watched ? "" : " Watch"}</button>
         </div>
         <div class="company-card__name">${escapeHtml(c.name)}</div>
         <div class="company-card__badges">
-          <span class="badge">&#128205; ${escapeHtml(c.country)}</span>
-          <span class="badge">&#127991; ${escapeHtml(c.sector)}</span>
-          <span class="badge">&#127970; ${escapeHtml(c.type)}</span>
-          ${c.has_key_contacts && c.verified ? `<span class="badge is-verified">&#10003; Verified Contacts</span>` : ""}
+          <span class="badge">${icon("map-pin", 12)} ${escapeHtml(c.country)}</span>
+          <span class="badge">${icon("tag", 12)} ${escapeHtml(c.sector)}</span>
+          <span class="badge">${icon("building", 12)} ${escapeHtml(c.type)}</span>
+          ${c.has_key_contacts && c.verified ? `<span class="badge is-verified">${icon("check-circle", 12)} Verified Contacts</span>` : ""}
         </div>
       </div>
       <div class="company-card__footer">
@@ -210,9 +210,9 @@ function openProfile(id) {
   if (!c) return;
 
   document.getElementById("profile-avatar").textContent = c.name.charAt(0);
-  document.getElementById("profile-name").innerHTML = escapeHtml(c.name) + (c.verified ? ` <span class="badge is-verified" style="margin-left:8px">&#10003; Verified</span>` : "");
+  document.getElementById("profile-name").innerHTML = escapeHtml(c.name) + (c.verified ? ` <span class="badge is-verified" style="margin-left:8px">${icon("check-circle", 12)} Verified</span>` : "");
   document.getElementById("profile-legal").textContent = c.legal_name !== c.name ? c.legal_name : "";
-  document.getElementById("profile-loc").textContent = `📍 ${c.district}, ${c.province}, ${c.country}`;
+  document.getElementById("profile-loc").innerHTML = `${icon("map-pin", 13)} ${escapeHtml(c.district)}, ${escapeHtml(c.province)}, ${escapeHtml(c.country)}`;
 
   const unlockedCount = c.contacts.filter(k => k.unlocked || k.is_public).length;
   document.getElementById("profile-stats").innerHTML = `
@@ -234,9 +234,9 @@ function openProfile(id) {
 function renderContacts(c) {
   const unlockedCount = c.contacts.filter(k => k.unlocked || k.is_public).length;
   const sub = c.contacts.length === 0 ? "No contacts listed"
-    : unlockedCount === c.contacts.length ? `All ${c.contacts.length} contacts unlocked ✓`
+    : unlockedCount === c.contacts.length ? `All ${c.contacts.length} contacts unlocked ${icon("check-circle", 12)}`
     : `${unlockedCount} of ${c.contacts.length} contacts unlocked · 1 token each`;
-  document.getElementById("profile-contact-sub").textContent = sub;
+  document.getElementById("profile-contact-sub").innerHTML = sub;
 
   document.getElementById("profile-contacts").innerHTML = c.contacts.map(k => {
     const isUnlocked = k.unlocked || k.is_public;
@@ -247,16 +247,16 @@ function renderContacts(c) {
         <div style="flex:1">
           <div class="contact-name-row">
             <span class="contact-name">${escapeHtml(k.name)}</span>
-            ${k.is_public ? `<span class="seniority-badge sales">Public</span>` : isUnlocked ? `<span class="seniority-badge sales">✓ Unlocked</span>` : ""}
+            ${k.is_public ? `<span class="seniority-badge sales">Public</span>` : isUnlocked ? `<span class="seniority-badge sales">${icon("check-circle", 11)} Unlocked</span>` : ""}
             <span class="seniority-badge ${senClass}">${senLabel}</span>
           </div>
           <div class="contact-desig">${escapeHtml(k.designation)}</div>
           <div class="contact-rows">
-            <div class="contact-row${isUnlocked ? "" : " is-masked"}">&#128222; ${isUnlocked ? escapeHtml(k.phone) : maskPhone(k.phone)}</div>
-            <div class="contact-row${isUnlocked ? "" : " is-masked"}">&#128231; ${isUnlocked ? escapeHtml(k.email) : maskEmail(k.email)}</div>
-            ${k.whatsapp ? `<div class="contact-row${isUnlocked ? "" : " is-masked"}">&#128172; ${isUnlocked ? escapeHtml(k.whatsapp) : maskPhone(k.whatsapp)}</div>` : ""}
+            <div class="contact-row${isUnlocked ? "" : " is-masked"}">${icon("phone", 13)} ${isUnlocked ? escapeHtml(k.phone) : maskPhone(k.phone)}</div>
+            <div class="contact-row${isUnlocked ? "" : " is-masked"}">${icon("mail", 13)} ${isUnlocked ? escapeHtml(k.email) : maskEmail(k.email)}</div>
+            ${k.whatsapp ? `<div class="contact-row${isUnlocked ? "" : " is-masked"}">${icon("message-circle", 13)} ${isUnlocked ? escapeHtml(k.whatsapp) : maskPhone(k.whatsapp)}</div>` : ""}
           </div>
-          ${!isUnlocked ? `<button class="btn btn--primary contact-unlock-btn" data-unlock-contact="${k.id}" type="button">&#128275; Unlock Contact Details · 1 token</button>` : ""}
+          ${!isUnlocked ? `<button class="btn btn--primary contact-unlock-btn" data-unlock-contact="${k.id}" type="button">${icon("lock", 13)} Unlock Contact Details · 1 token</button>` : ""}
         </div>
       </div>
     `;
@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const plan = SUBSCRIPTION_PLANS.find(p => p.id === buyPlanBtn.dataset.buyPlan);
       tokenBalance += plan.tokens;
       renderTokenBalance();
-      buyPlanBtn.textContent = "Tokens added ✓";
+      buyPlanBtn.innerHTML = `${icon("check-circle", 13)} Tokens added`;
       setTimeout(() => { buyPlanBtn.textContent = "Get Plan"; }, 2000);
       return;
     }
