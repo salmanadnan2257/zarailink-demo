@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ZaraiLink — Demo</title>
-  <meta name="description" content="A fabricated, scripted walkthrough of ZaraiLink's natural-language trade search, company directory, and trade ledger. No live calls, no real trade data.">
+  <meta name="description" content="A fabricated, scripted walkthrough of ZaraiLink's dashboard, search, trade directory, company profiles, and contact unlock flow. No live calls, no real trade data.">
   <meta name="robots" content="noindex">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="demo-banner">
-    <strong>Demo mode</strong> — fabricated example search. No live calls happen here; no real company or customs data is shown.
+    <strong>Demo mode</strong> — fabricated example data. No live calls happen here; no real company or customs data is shown.
   </div>
 
   <nav class="zl-navbar">
@@ -20,70 +20,233 @@
         <span class="zl-navbar__name">ZaraiLink</span>
       </div>
       <div class="zl-navbar__links">
-        <a href="#" class="is-active">Dashboard</a>
-        <a href="#">Intelligence</a>
-        <a href="#">Subscription</a>
-        <a href="#">Watchlist</a>
+        <a href="#" data-view="dashboard" class="is-active">Dashboard</a>
+        <div class="zl-nav-dropdown" id="intel-dropdown">
+          <button type="button" id="intel-toggle">Intelligence &#9662;</button>
+          <div class="zl-nav-dropdown__panel">
+            <a href="#" data-view="directory" data-role="Supplier">Find Suppliers</a>
+            <a href="#" data-view="directory" data-role="Buyer">Find Buyers</a>
+          </div>
+        </div>
+        <a href="#" data-view="subscription">Subscription</a>
+        <a href="#" data-view="watchlist">Watchlist</a>
       </div>
+      <div class="zl-navbar__spacer"></div>
       <div class="zl-navbar__right">
         <span class="zl-token-pill">&#9889; <span id="token-balance"></span> tokens</span>
-        <span class="zl-avatar" aria-hidden="true">D</span>
+        <span class="zl-avatar" id="user-avatar" aria-hidden="true"></span>
       </div>
     </div>
   </nav>
 
-  <header class="search-hero">
-    <div class="wrap">
-      <p class="eyebrow">zarailink / demo</p>
-      <h1>What are you looking for today?</h1>
-      <p class="lede">
-        The real system is an agricultural trade-intelligence platform: a
-        Django/DRF backend and React frontend, an NLU pipeline, hybrid
-        retrieval, and a learning-to-rank model over Pakistani customs trade
-        data. It's a three-person team project, and publishing it isn't one
-        person's call to make alone, so the source stays private. This page
-        replays the same search-to-ledger flow with a fabricated example.
-      </p>
-      <div class="search-form">
-        <div class="search-pill">
-          <svg class="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input id="query-input" type="text" readonly>
-          <button id="search-btn" type="button">Search</button>
+  <main>
+
+    <!-- ============ DASHBOARD (real post-login search home) ============ -->
+    <section class="view is-active" id="view-dashboard">
+      <header class="dash-hero">
+        <div class="wrap">
+          <p class="eyebrow">zarailink / demo</p>
+          <div class="method-card">
+            <p class="method-card__title">4 Ways to Search ZaraiLink</p>
+            <div class="method-grid">
+              <div class="method-tile c-blue"><div class="method-tile__title">HS Code</div><div class="method-tile__sub">Type a numeric code</div><span class="method-tile__ex">1702.3000</span></div>
+              <div class="method-tile c-orange"><div class="method-tile__title">Category</div><div class="method-tile__sub">Broad product class</div><span class="method-tile__ex">glucose syrup</span></div>
+              <div class="method-tile c-emerald"><div class="method-tile__title">Product Name</div><div class="method-tile__sub">Specific variant</div><span class="method-tile__ex">dextrose ball</span></div>
+              <div class="method-tile c-violet"><div class="method-tile__title">AI Query</div><div class="method-tile__sub">Select Import/Export first</div><span class="method-tile__ex">buy urea from india</span></div>
+            </div>
+          </div>
+
+          <h1>What are you looking for, <span id="dash-username"></span>?</h1>
+
+          <div class="search-form">
+            <div class="search-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="query-input" type="text" placeholder="Try 'Import Dextrose from China under $700'...">
+              <button id="search-btn" type="button">Search</button>
+            </div>
+            <div id="mode-pill-wrap"></div>
+            <div class="scope-toggle">
+              <button class="scope-btn is-active" data-scope="import" type="button">Import</button>
+              <button class="scope-btn" data-scope="export" type="button">Export</button>
+            </div>
+            <div class="quick-pills">
+              <button class="quick-pill" type="button">I want to buy</button>
+              <button class="quick-pill" type="button">I want to sell</button>
+              <button class="quick-pill" type="button" data-view="directory" data-role="Supplier">Find suppliers</button>
+              <button class="quick-pill" type="button" data-view="directory" data-role="Buyer">Find buyers</button>
+            </div>
+            <div class="example-row">
+              <button type="button" data-example="Dextrose suppliers in Brazil">Dextrose suppliers in Brazil</button>
+              <button type="button" data-example="Buy Urea 46%">Buy Urea 46%</button>
+              <button type="button" data-example="Who sells PVC Resin?">Who sells PVC Resin?</button>
+            </div>
+          </div>
         </div>
-        <span class="mode-pill">&#10024; AI Query Mode</span>
+      </header>
+
+      <div class="stats-strip">
+        <div class="wrap stats-grid">
+          <div><b id="stat-records"></b><span>Trade Records</span></div>
+          <div><b id="stat-companies"></b><span>Companies Listed</span></div>
+          <div><b id="stat-products"></b><span>Products Tracked</span></div>
+        </div>
       </div>
-      <p class="token-note">Tokens available to unlock contacts: <b id="token-balance-2"></b></p>
-    </div>
-  </header>
 
-  <main class="wrap">
+      <div class="wrap features-grid">
+        <div class="feature-card"><div class="feature-card__icon">&#128269;</div><h3>Discover Buyers &amp; Suppliers</h3><p>Natural-language search across customs trade history.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">&#128202;</div><h3>Understand the Market</h3><p>Volume, price trends, and partner counts per company.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">&#127970;</div><h3>Deep-Dive Company Profiles</h3><p>Products, history, and verification status in one view.</p></div>
+        <div class="feature-card"><div class="feature-card__icon">&#128222;</div><h3>Contact Decision Makers</h3><p>Unlock verified contacts with a token-based system.</p></div>
+      </div>
 
-    <section class="stage" id="parse-stage">
-      <div class="card">
-        <h2>Query understanding</h2>
-        <div id="parse-body"></div>
+      <div class="wrap">
+        <div class="bottom-cta">
+          <h2>Find your next trading partner</h2>
+          <p>Browse the full directory, or start with a natural-language search above.</p>
+          <div class="btn-row">
+            <button class="btn btn--primary" type="button" data-view="directory" data-role="Supplier">Find Suppliers</button>
+            <button class="btn btn--ghost" type="button" data-view="directory" data-role="Buyer" style="background:#fff">Find Buyers</button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="stage" id="results-stage">
-      <div class="card" style="background:transparent;border:none;box-shadow:none;padding:0">
-        <h2 style="padding-left:2px">Ranked results</h2>
-        <div class="company-list" id="company-list"></div>
+    <!-- ============ DATA DASHBOARD (search results) ============ -->
+    <section class="view" id="view-results">
+      <div class="dd-header">
+        <div class="wrap">
+          <p class="eyebrow">Market Intelligence</p>
+          <h1 id="dd-title"></h1>
+          <p id="dd-sub"></p>
+          <div class="dd-header__meta">
+            <span class="dd-chip" id="dd-shipment-count"></span>
+            <button class="dd-chip" type="button" data-view="dashboard" style="cursor:pointer;border:none">&larr; Dashboard</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap dd-body">
+        <aside class="dd-sidebar">
+          <h3>&#128269; Refine by Product</h3>
+          <div id="dd-filters"></div>
+        </aside>
+        <div class="dd-main">
+          <div class="dd-pills" id="dd-pills"></div>
+          <div id="dd-results-wrap">
+            <p style="text-align:center;color:var(--text-2);padding:40px 0">&#9757; Select a trade perspective above</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="stage" id="ledger-stage">
-      <div class="ledger-header">
-        <p class="eyebrow">Market Intelligence</p>
-        <h2 id="ledger-title"></h2>
-        <p id="ledger-sub"></p>
+    <!-- ============ TRADE DIRECTORY ============ -->
+    <section class="view" id="view-directory">
+      <header class="td-header-band">
+        <div class="wrap">
+          <p class="eyebrow" id="td-eyebrow">Trade Directory</p>
+          <h1 id="td-title">Find Suppliers</h1>
+          <p class="lede" id="td-lede">Browse verified suppliers with real trade history.</p>
+          <div class="td-search-row">
+            <input id="td-search-input" type="text" placeholder="Search companies...">
+            <button class="btn btn--ghost" type="button" id="td-switch-btn">Switch to Buyers &rarr;</button>
+          </div>
+        </div>
+      </header>
+      <div class="wrap">
+        <div class="company-grid" id="directory-grid"></div>
       </div>
-      <div class="ledger-body">
-        <div id="ledger-body"></div>
+    </section>
+
+    <!-- ============ WATCHLIST ============ -->
+    <section class="view" id="view-watchlist">
+      <header class="td-header-band">
+        <div class="wrap">
+          <p class="eyebrow">My Watchlist</p>
+          <h1>&#11088; Starred companies</h1>
+          <p class="lede">Companies you've starred from the Trade Directory appear here.</p>
+        </div>
+      </header>
+      <div class="wrap">
+        <div class="company-grid" id="watchlist-grid"></div>
+      </div>
+    </section>
+
+    <!-- ============ COMPANY PROFILE ============ -->
+    <section class="view" id="view-profile">
+      <div class="profile-header">
+        <div class="wrap">
+          <a href="#" class="profile-back" data-view="directory">&larr; Back to Directory</a>
+          <div class="profile-top">
+            <span class="profile-avatar" id="profile-avatar"></span>
+            <div>
+              <div class="profile-name" id="profile-name"></div>
+              <div class="profile-legal" id="profile-legal"></div>
+              <div class="profile-loc" id="profile-loc"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wrap" style="padding-bottom:60px">
+        <div class="profile-stats" id="profile-stats"></div>
+
+        <h2 style="font-size:16px;margin:26px 0 10px">Products Dealt In</h2>
+        <div id="profile-products"></div>
+
+        <h2 style="font-size:16px;margin:30px 0 6px">Key Contacts</h2>
+        <p class="contact-section-sub" id="profile-contact-sub"></p>
+        <div id="profile-contacts"></div>
+      </div>
+    </section>
+
+    <!-- ============ SUBSCRIPTION ============ -->
+    <section class="view" id="view-subscription">
+      <header class="td-header-band">
+        <div class="wrap">
+          <p class="eyebrow">Subscription</p>
+          <h1>Subscription Plans</h1>
+          <p class="lede">Tokens unlock company contact details across the directory and search results.</p>
+        </div>
+      </header>
+      <div class="wrap">
+        <div class="plan-grid" id="plan-grid"></div>
       </div>
     </section>
 
   </main>
+
+  <!-- ============ UNLOCK MODALS ============ -->
+  <div class="zl-modal-overlay" id="modal-confirm">
+    <div class="zl-modal">
+      <div class="zl-modal__icon confirm">&#128274;</div>
+      <h3>Unlock this contact?</h3>
+      <p id="confirm-text"></p>
+      <div class="btn-row">
+        <button class="btn btn--ghost" type="button" id="confirm-cancel">Cancel</button>
+        <button class="btn btn--primary" type="button" id="confirm-ok">Unlock (1 token)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="zl-modal-overlay" id="modal-success">
+    <div class="zl-modal">
+      <div class="zl-modal__icon success">&#9989;</div>
+      <h3>Contact unlocked</h3>
+      <p id="success-text"></p>
+      <div class="btn-row"><button class="btn btn--primary" type="button" id="success-close">Done</button></div>
+    </div>
+  </div>
+
+  <div class="zl-modal-overlay" id="modal-insufficient">
+    <div class="zl-modal">
+      <div class="zl-modal__icon confirm">&#9888;&#65039;</div>
+      <h3>Not enough tokens</h3>
+      <p>You're out of tokens. Buy more to keep unlocking contacts.</p>
+      <div class="btn-row">
+        <button class="btn btn--ghost" type="button" id="insufficient-close">Close</button>
+        <button class="btn btn--primary" type="button" data-view="subscription" id="insufficient-buy">Buy Tokens</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-foot">
     <div class="wrap">
