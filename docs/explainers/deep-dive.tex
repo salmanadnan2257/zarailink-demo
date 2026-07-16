@@ -1,0 +1,1460 @@
+% explainer-source-hash: f66797fe7a8c9d53245973007383b8fd1cc4dd9c9dfb65e80e4b5a7a95976308
+% explainer-source-commit: a0ae5757644677d02ec29161881badb6a764a332
+% explainer-generated: 2026-07-16
+% Regenerate with /explain-all (see WIRING.md). Do not edit this stamp by hand:
+% it is how the toolchain knows whether this document still matches the code.
+\documentclass[11pt,a4paper]{article}
+\input{preamble}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{2.5cm}
+{\Huge\bfseries\color{inkblue} ZaraiLink: Demo\par}
+\vspace{0.6cm}
+{\Large\color{accent} Deep Dive\par}
+\vspace{1.2cm}
+{\large An exhaustive, beginner-safe walkthrough of the public demo\par}
+\vspace{2.5cm}
+\begin{minipage}{0.82\textwidth}
+\begin{honest}{Read this before anything else}
+\textbf{This document describes a demo, not a product.} Every company, contact,
+phone number, email address, price and shipment figure in this repository is
+\textbf{fabricated}. Nothing here is real trade data. No part of this code talks to a
+network. It is a hand-built imitation of another application's screens.
+
+\medskip
+\textbf{ZaraiLink itself is a team project, not solo work.} It was built by three
+people. Salman Adnan led it; Umar Kashif and Fahad Nadeem wrote real and substantial
+parts of it. The real system is private and its source is not in this repository. This
+demo exists so the product can be shown without publishing code that three people
+would have to agree to publish.
+\end{honest}
+\end{minipage}
+\vfill
+{\small\color{inkblue}Working document for the owner's own understanding and interview defense.\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{What this repository is, and what it is not}
+
+\subsection{The one-paragraph version}
+
+This repository, \file{zarailink-demo}, is a \textbf{static web page}: three JavaScript
+files, one stylesheet, one HTML file, a font and two favicons. Opening \file{index.html}
+in a browser gives you a clickable imitation of six screens from a different, private
+application called ZaraiLink. You can type a search, filter results, browse a company
+directory, open a company profile, spend fake tokens to reveal fake phone numbers, and
+star companies onto a watchlist. Every one of those actions is computed locally from a
+hard-coded array of invented companies. There is no server, no database, no build step,
+and no network request of any kind.
+
+\begin{keyidea}{Why a demo exists at all}
+The real ZaraiLink repository is private, and it cannot be made public by one person.
+It has three authors, and publishing shared work is not a decision one author gets to
+make alone. That leaves a problem: how do you show a hiring panel a product they cannot
+be given the source to? The answer taken here is to rebuild the \emph{screens} against
+\emph{invented} data. The visual design language and the interaction patterns are things
+any browser loading the real app already downloads and renders. The private parts (the
+natural-language pipeline, the ranking model, the customs data, the API routes) stay out
+of this repository entirely.
+\end{keyidea}
+
+\subsection{The two framings that must never be dropped}
+
+Both of the following are stated in the repository's own \file{README.md}, its
+\file{index.html} banner and its footer, and both are load-bearing. If either is dropped
+when this project is presented, the presentation becomes dishonest.
+
+\begin{enumerate}
+\item \textbf{The data is fabricated.} ``Meridian AgroTrade Ltd.'' does not exist.
+  Neither does ``Elena Marsh'' or her phone number. The domains are all under
+  \code{.example.com}, a reserved domain that can never resolve to a real site. The
+  headline statistics (``50,000+ Trade Records'') are invented strings, not counts of
+  anything.
+\item \textbf{ZaraiLink is a team project led by Salman Adnan.} The demo shows features
+  from a shared codebase. Some of those features were written by other people. This demo
+  demonstrates that the features work as described; it does not claim their authorship.
+\end{enumerate}
+
+\begin{honest}{What this repository cannot prove, and should not be asked to}
+This demo is evidence of \emph{UI reconstruction skill and product judgment}. It is
+\textbf{not} evidence that the real ZaraiLink's backend works, because none of that
+backend is here. A reader of this repository alone cannot verify that the natural-language
+pipeline, the hybrid retrieval, or the learning-to-rank model exist or perform. Those
+claims rest entirely on the owner's word and on the private repository.
+
+The specific claim in \file{README.md} that Salman wrote ``64 of 97 commits'' is
+\textbf{unverifiable from this repository}. The private repository's git history is not
+here. That number is the owner's to stand behind, and an interviewer who asks for it
+should be pointed at the private repository, not at this one.
+\end{honest}
+
+\subsection{The relationship between the two repositories}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[node distance=8mm]
+  \node[extbox, minimum width=52mm, minimum height=34mm, align=center] (real)
+    {\textbf{ZaraiLink (the real system)}\\[3pt]
+     \footnotesize PRIVATE repository\\
+     \footnotesize Three authors, led by Salman\\[4pt]
+     \footnotesize Django + DRF backend\\
+     \footnotesize React frontend\\
+     \footnotesize NLU pipeline\\
+     \footnotesize Hybrid retrieval\\
+     \footnotesize Learning-to-rank model\\
+     \footnotesize Real Pakistani customs data};
+
+  \node[box, minimum width=52mm, minimum height=34mm, right=42mm of real, align=center] (demo)
+    {\textbf{zarailink-demo (this repo)}\\[3pt]
+     \footnotesize PUBLIC\\
+     \footnotesize Written by Salman alone\\[4pt]
+     \footnotesize Plain HTML\\
+     \footnotesize Plain CSS\\
+     \footnotesize Vanilla JavaScript\\
+     \footnotesize No backend, no build\\
+     \footnotesize Fabricated data only};
+
+  \draw[flow] ($(real.east)+(0,10mm)$) -- node[lbl, above, align=center]
+    {screen structure,\\colour tokens,\\interaction patterns\\\textbf{copied}} ($(demo.west)+(0,10mm)$);
+
+  \draw[dflow, draw=warnred] ($(real.east)+(0,-6mm)$) -- node[lbl, below, align=center, text=warnred]
+    {backend logic, models,\\real data, API routes\\\textbf{deliberately NOT copied}} ($(demo.west)+(0,-6mm)$);
+
+  \node[lbl, below=3mm of real, text width=52mm] {Source of truth. Not in this repo.};
+  \node[lbl, below=3mm of demo, text width=52mm] {What you are reading about.};
+\end{tikzpicture}}
+\caption{The demo copies the visible surface and deliberately copies none of the private logic.}
+\end{figure}
+
+\begin{jargon}{Backend and frontend}
+A \textbf{frontend} is the part of an application that runs in the user's browser and
+draws what you see. A \textbf{backend} is the part that runs on a server somewhere else,
+holds the database, and answers the frontend's questions over the network. The real
+ZaraiLink has both. This demo has \emph{only} a frontend, and that frontend asks nobody
+anything: it reads a JavaScript array sitting in the same folder.
+\end{jargon}
+
+% =====================================================================
+\section{Layout of the repository}
+
+\subsection{Every file, and why it exists}
+
+\begin{figure}[H]
+\centering
+\begin{forest} dirtree
+[zarailink-demo/
+  [index.html {\rmfamily\itshape all six screens, as static markup}]
+  [styles.css {\rmfamily\itshape colour tokens and component layout}]
+  [demo-data.js {\rmfamily\itshape the fabricated companies and plans}]
+  [icons.js {\rmfamily\itshape a hand-drawn SVG icon set}]
+  [app.js {\rmfamily\itshape all behaviour: routing, filtering, unlocking}]
+  [assets/
+    [fonts/
+      [inter-variable.woff2 {\rmfamily\itshape self-hosted font, 48 KB}]
+    ]
+  ]
+  [favicon.svg {\rmfamily\itshape emerald tile with a Z}]
+  [favicon.png {\rmfamily\itshape raster fallback}]
+  [netlify.toml {\rmfamily\itshape two lines: publish this folder as-is}]
+  [LICENSE {\rmfamily\itshape PolyForm Strict 1.0.0}]
+  [README.md]
+  [docs/
+    [explainers/
+      [deep-dive.tex {\rmfamily\itshape this document}]
+      [brief.tex]
+    ]
+  ]
+]
+\end{forest}
+\caption{The whole project. Five files carry all of the behaviour.}
+\end{figure}
+
+The entire application is roughly 1,100 lines across five files:
+
+\begin{center}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{File} & \textbf{Role} & \textbf{Lines} \\
+\midrule
+\file{app.js}      & All behaviour and rendering & 399 \\
+\file{styles.css}  & All presentation & 369 \\
+\file{index.html}  & Static shell for six screens & 271 \\
+\file{demo-data.js}& The fabricated dataset & 70 \\
+\file{icons.js}    & SVG icon lookup table & 34 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{How the browser loads it}
+
+There is no build step. This deserves emphasis, because it is unusual for something that
+imitates a React application.
+
+\begin{jargon}{Build step}
+Most modern web applications are written in a form the browser cannot run (React's JSX,
+TypeScript, Sass), and a \textbf{build step} is a program that translates that source into
+plain HTML, CSS and JavaScript before it is deployed. It is a whole extra machine to
+install, configure, run and keep working. This demo skips it: what is in the repository is
+exactly what the browser executes. You can double-click \file{index.html} and it works,
+offline, forever, with no toolchain.
+\end{jargon}
+
+The three scripts are loaded in a fixed order at the bottom of \file{index.html}, and that
+order matters:
+
+\begin{lstlisting}
+  <script src="demo-data.js"></script>
+  <script src="icons.js"></script>
+  <script src="app.js"></script>
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{
+\begin{tikzpicture}[node distance=7mm]
+  \node[box] (html) {\file{index.html}\\parsed top to bottom};
+  \node[box, below=of html] (css) {\file{styles.css}\\\footnotesize plus \file{@font-face} loads Inter};
+  \node[store, right=22mm of html] (data) {\file{demo-data.js}\\\footnotesize defines \code{COMPANIES},\\\footnotesize \code{tokenBalance}, \code{USER}, \code{STATS}};
+  \node[box, below=of data] (icons) {\file{icons.js}\\\footnotesize defines \code{icon(name, size)}};
+  \node[box, right=22mm of data] (app) {\file{app.js}\\\footnotesize defines everything else,\\\footnotesize then waits};
+  \node[dec, below=12mm of app] (dom) {DOM\\ready?};
+  \node[box, below=12mm of dom] (init) {Initial render:\\\footnotesize token pill, stats, plans,\\\footnotesize directory grid, listeners};
+
+  \draw[flow] (html) -- (css);
+  \draw[flow] (html) -- (data);
+  \draw[flow] (data) -- (icons);
+  \draw[flow] (icons.east) -| (app.south west);
+  \draw[flow] (data) -- (app);
+  \draw[flow] (app) -- (dom);
+  \draw[flow] (dom) -- node[lbl, right] {\code{DOMContentLoaded}} (init);
+\end{tikzpicture}}
+\caption{Load order. \file{app.js} depends on globals that the two earlier scripts define.}
+\end{figure}
+
+\begin{honest}{The load order is an unguarded dependency}
+\file{app.js} uses \code{COMPANIES}, \code{tokenBalance} and \code{icon()} as bare
+globals. Nothing declares or checks that dependency. If someone reorders those three
+\code{<script>} tags, or adds \code{defer} to only one of them, the page breaks with a
+\code{ReferenceError} and no useful message. For a five-file demo that is an acceptable
+trade (a module system would be more machinery than the problem deserves), but it is a
+real coupling that lives only in the ordering of three lines of HTML, and it is worth
+naming rather than pretending the files are independent.
+\end{honest}
+
+% =====================================================================
+\section{The data: what was invented, and how it is shaped}
+
+\subsection{Why the shape matters more than the values}
+
+The values in \file{demo-data.js} are invented and worthless. The \emph{field names} are
+the interesting part: they mirror the real application's components, so the demo exercises
+the real product's actual information architecture rather than a simplified stand-in.
+
+\begin{figure}[H]
+\centering
+\begin{forest} dirtree
+[COMPANIES {\rmfamily\itshape array of 4}
+  [id {\rmfamily\itshape "c1" .. "c4", used as the routing key}]
+  [name / legal\_name {\rmfamily\itshape display name vs registered entity}]
+  [country / district / province {\rmfamily\itshape drives the trade-direction pills}]
+  [sector / type / established / employees {\rmfamily\itshape profile stat grid}]
+  [verified / has\_key\_contacts {\rmfamily\itshape both needed for the Verified badge}]
+  [website / last\_active {\rmfamily\itshape PRESENT BUT NEVER READ}]
+  [products {\rmfamily\itshape array}
+    [name / variety / value\_added]
+  ]
+  [avg\_price / volume / shipments / avg\_shipment {\rmfamily\itshape result-card stats}]
+  [contacts {\rmfamily\itshape array, 1 to 2 per company}
+    [id {\rmfamily\itshape "k1" .. "k5", the unlock key}]
+    [name / designation]
+    [is\_public {\rmfamily\itshape free, never locked}]
+    [unlocked {\rmfamily\itshape MUTATED at runtime}]
+    [phone / email / whatsapp {\rmfamily\itshape whatsapp may be null}]
+  ]
+]
+\end{forest}
+\caption{The company record. Two fields are decorative: nothing ever reads them.}
+\end{figure}
+
+The full fabricated dataset is small enough to state exactly:
+
+\begin{center}
+\begin{tabular}{@{}lllcc@{}}
+\toprule
+\textbf{Company} & \textbf{Country} & \textbf{Sector} & \textbf{Verified} & \textbf{Contacts} \\
+\midrule
+Meridian AgroTrade Ltd.     & Brazil   & Sweeteners  & yes & 2 \\
+Cascade Commodities Group   & Brazil   & Sweeteners  & yes & 1 (public) \\
+Sable Harvest Exports       & Brazil   & Sweeteners  & no  & 1 \\
+Northgate Chemical Traders  & Pakistan & Fertilizers & yes & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Four companies, five contacts. One of those five (Priya Nair at Cascade) is marked
+\code{is\_public: true}, so it starts unlocked and free. The other four cost one token
+each. The user starts with \code{tokenBalance = 7}.
+
+\begin{honest}{The dataset is smaller than the screens it has to fill}
+Three of the four companies are Brazilian and sell dextrose; one is Pakistani and sells
+urea. That is enough to make the country-based filtering visibly do \emph{something}, but
+only just. As shown later, it means two of the four trade-direction pills return three
+results and the other two return one result, and it means no screen ever shows enough rows
+for the sidebar filters or the grid layout to be stress-tested. A panel clicking through
+this will notice the world is thin.
+\end{honest}
+
+\subsection{Dead data}
+
+Three declarations in \file{demo-data.js} are never read by anything. This was verified by
+searching every file in the repository for each identifier.
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Declaration} & \textbf{Looks like} & \textbf{Actually} \\
+\midrule
+\code{HS\_TREE} & a lookup of 3 HS codes & declared, referenced nowhere \\
+\code{company.website} & a profile link & set on all 4, rendered never \\
+\code{company.last\_active} & a recency signal & set on 3, rendered never \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{jargon}{HS code}
+The Harmonized System is an international numbering scheme for traded goods. Every
+physical product that crosses a border has an HS code, and customs records are indexed by
+it. \code{1702.3000} is dextrose. The real ZaraiLink lets a user search by this code, which
+is why the demo's search box detects a leading digit and says so.
+\end{jargon}
+
+\code{HS\_TREE} is the most interesting of the three, because it is a real fragment of the
+product's model (code, name, category) that got built and then never wired to a screen.
+The Dashboard's ``4 Ways to Search'' card hard-codes the example \code{1702.3000} in the
+HTML instead of reading it from \code{HS\_TREE}, and \code{runSearch()} hard-codes the
+string \code{"HS 1702.3000: Dextrose"} rather than looking the code up. The data structure
+that would make that dynamic exists and is ignored.
+
+% =====================================================================
+\section{The router: six screens in one file}
+
+\subsection{How the screens work}
+
+All six screens are present in \file{index.html} at once, as six \code{<section
+class="view">} elements. CSS hides all of them, and shows only the one carrying an extra
+class:
+
+\begin{lstlisting}
+.view { display: none; }
+.view.is-active { display: block; }
+\end{lstlisting}
+
+Switching screens is therefore just moving one CSS class:
+
+\begin{lstlisting}
+function switchView(viewId) {
+  document.querySelectorAll(".view").forEach(v =>
+    v.classList.toggle("is-active", v.id === `view-${viewId}`));
+  document.querySelectorAll(".zl-navbar__links > a").forEach(a =>
+    a.classList.toggle("is-active", a.dataset.view === viewId));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+\end{lstlisting}
+
+The two-argument form of \code{classList.toggle} is the trick that makes this three lines
+instead of ten: \code{toggle(name, condition)} adds the class when the condition is true
+and removes it when false, so one pass over every view both shows the target and hides all
+the others.
+
+\begin{jargon}{The DOM, and \code{querySelectorAll}}
+The \textbf{DOM} (Document Object Model) is the browser's live, in-memory tree of the page.
+JavaScript changes what you see by changing that tree. \code{querySelectorAll(".view")}
+hands back every element whose class is \code{view}, using the same selector syntax CSS
+uses.
+\end{jargon}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[node distance=13mm]
+  \node[box] (dash) {\textbf{dashboard}\\\footnotesize search home};
+  \node[box, right=26mm of dash] (results) {\textbf{results}\\\footnotesize Data Dashboard};
+  \node[box, below=of dash] (dir) {\textbf{directory}\\\footnotesize Trade Directory};
+  \node[box, right=26mm of dir] (profile) {\textbf{profile}\\\footnotesize Company Profile};
+  \node[box, below=of dir] (watch) {\textbf{watchlist}};
+  \node[box, right=26mm of watch] (sub) {\textbf{subscription}};
+
+  \draw[flow] (dash) -- node[lbl, above] {\code{runSearch()}} (results);
+  \draw[flow] (dash) -- node[lbl, left, align=center] {nav /\\quick pill} (dir);
+  \draw[flow] (dir) -- node[lbl, above] {\code{openProfile(id)}} (profile);
+  \draw[flow] (results) -- node[lbl, right, align=center] {result card\\\code{data-open-profile}} (profile);
+  \draw[flow] (profile.south west) -- node[lbl, below, align=center] {Back to\\Directory} (dir.east);
+  \draw[flow] (dir) -- node[lbl, left] {nav} (watch);
+  \draw[flow] (watch) -- node[lbl, above] {nav} (sub);
+  \draw[flow, dashed] (sub.north) to[out=60, in=-60] node[lbl, right, align=center] {``Buy Tokens''\\from modal} (profile.south east);
+  \draw[flow] (results.north west) to[out=140, in=40] node[lbl, above] {Dashboard chip} (dash.north east);
+\end{tikzpicture}}
+\caption{The navigation graph. Every edge is a class swap; no URL ever changes.}
+\end{figure}
+
+\begin{honest}{No URL routing, and what that costs}
+\code{switchView} never touches the address bar. There is no \code{history.pushState}, no
+hash fragment, no router. Three consequences, all real:
+\begin{itemize}
+\item \textbf{The browser Back button leaves the demo.} It does not go back a screen; it
+  leaves the page entirely. The only way back is the in-page ``Back to Directory'' link.
+\item \textbf{No screen is linkable.} You cannot send someone a URL that opens a company
+  profile. For a portfolio demo whose entire job is to be shown to other people, that is a
+  genuine limitation.
+\item \textbf{Reload resets everything.} State lives in plain variables, so a refresh
+  restores 7 tokens and an empty watchlist.
+\end{itemize}
+For a scripted walkthrough this is defensible and the simplicity is worth something. But
+``I skipped the router deliberately'' is a much better answer than being surprised by the
+question.
+\end{honest}
+
+\subsection{Application state}
+
+The entire state of the application is six module-level variables:
+
+\begin{lstlisting}
+const watchedIds = new Set();   // starred company ids
+let currentScope = "import";    // Import | Export        <- never read
+let currentRole  = "Supplier";  // Supplier | Buyer
+let currentProfileId = null;    // which company the profile shows
+let ddUnlocked   = false;       // category paywall cleared?
+let ddActivePill = null;        // which trade-direction pill
+let pendingUnlock = null;       // { companyId, contactId } awaiting confirm
+\end{lstlisting}
+
+plus \code{tokenBalance}, which lives in \file{demo-data.js} and is mutated from
+\file{app.js}. There is no state container, no framework, and no persistence.
+
+\begin{honest}{\code{tokenBalance} is defined in the data file and mutated from the app file}
+\code{demo-data.js} declares \code{let tokenBalance = 7} alongside the fabricated
+companies, and \code{app.js} writes to it from three different places. Mixing ``the
+fixtures'' and ``the mutable session state'' in the file named \file{demo-data.js} is a
+small architectural smell: everything else in that file is inert data, and this one line is
+not. It works, but the file name lies slightly about its contents.
+
+Worse, the \code{unlocked} flag on each contact is mutated \emph{in place} inside
+\code{COMPANIES}. The fabricated fixture and the live session state are the same object.
+It is why a reload is the only way to re-lock a contact.
+\end{honest}
+
+\subsection{One listener for the whole application}
+
+Rather than attaching a handler to every button, \file{app.js} attaches a single
+\code{click} listener to \code{document.body} and works out what was clicked:
+
+\begin{lstlisting}
+document.body.addEventListener("click", (e) => {
+  const viewLink = e.target.closest("[data-view]");
+  if (viewLink) { /* navigate */ return; }
+  const openProfileBtn = e.target.closest("[data-open-profile]");
+  if (openProfileBtn) { /* open profile */ return; }
+  const watchBtn = e.target.closest("[data-watch]");
+  if (watchBtn) { /* toggle star */ return; }
+  // ... and so on
+});
+\end{lstlisting}
+
+\begin{jargon}{Event delegation}
+When you click a button, the browser fires the event on the button, then on its parent,
+then its parent's parent, all the way up to \code{<body>}. This is called
+\textbf{bubbling}. \textbf{Event delegation} exploits it: listen once at the top, and use
+\code{e.target.closest(selector)} to walk back \emph{down} the chain and find which
+interesting element was actually hit. \code{closest()} starts at the clicked element and
+climbs until it finds an ancestor matching the selector, which is what makes clicking an
+SVG icon \emph{inside} a button still register as clicking the button.
+\end{jargon}
+
+This is the single best decision in the codebase, and it is worth being able to explain
+why. Almost every element on these screens is created by writing an HTML string into
+\code{innerHTML}. Doing that \textbf{destroys and recreates} the elements, which would
+throw away any listener attached directly to them. With delegation, the listener lives on
+\code{<body>}, which is never recreated, so re-rendering a grid a hundred times costs
+nothing and breaks nothing. Without it, every render would have to re-attach every handler.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}
+  % == left column: tests 1 to 4 ==
+  \node[box] (click) {click anywhere on \code{<body>}};
+  \node[dec, below=6mm of click]  (d1) {\code{data-view}?};
+  \node[dec, below=10mm of d1]    (d2) {\code{data-open-}\\\code{profile}?};
+  \node[dec, below=10mm of d2]    (d3) {\code{data-watch}?};
+  \node[dec, below=10mm of d3]    (d4) {\code{data-unlock-}\\\code{contact}?};
+
+  \node[box, right=30mm of d1] (a1) {\code{switchView()}\\\footnotesize + re-render target};
+  \node[box, right=30mm of d2] (a2) {\code{openProfile(id)}};
+  \node[box, right=30mm of d3] (a3) {toggle \code{watchedIds}\\\footnotesize + \code{renderDirectory()}};
+  \node[box, right=30mm of d4] (a4) {\code{requestUnlock(id)}};
+
+  \draw[flow] (click) -- (d1);
+  \foreach \a/\b in {d1/d2, d2/d3, d3/d4}
+    \draw[flow] (\a) -- node[lbl, left] {no} (\b);
+  \foreach \d/\a in {d1/a1, d2/a2, d3/a3, d4/a4}
+    \draw[flow] (\d) -- node[lbl, above] {yes} (\a);
+
+  % == right column: tests 5 to 7, continuing the same chain ==
+  \node[dec, right=54mm of a1] (d5) {\code{data-pill}?};
+  \node[dec, below=10mm of d5] (d6) {\code{data-buy-plan}?};
+  \node[dec, below=10mm of d6] (d7) {\code{\#intel-toggle}?};
+  \node[box, below=8mm of d7]  (close) {close the dropdown\\\footnotesize (the fall-through)};
+
+  \node[box, right=30mm of d5] (a5) {\code{selectPill(id)}};
+  \node[box, right=30mm of d6] (a6) {grant tokens};
+  \node[box, right=30mm of d7] (a7) {toggle dropdown};
+
+  \foreach \a/\b in {d5/d6, d6/d7, d7/close}
+    \draw[flow] (\a) -- node[lbl, left] {no} (\b);
+  \foreach \d/\a in {d5/a5, d6/a6, d7/a7}
+    \draw[flow] (\d) -- node[lbl, above] {yes} (\a);
+
+  % == chain continues from d4's "no" into d5, entering from the west ==
+  \draw[flow] (d4.south) -- ++(0,-9mm) node[lbl, below left] {no}
+    -| ($(d5.west)+(-14mm,0)$) -- (d5.west);
+\end{tikzpicture}}
+\caption{The delegated dispatcher, read left column first then right. Each \code{yes} branch ends
+in \code{return}, so it is an ordered chain, not a switch: the first matching test wins and
+nothing below it is consulted.}
+\end{figure}
+
+% =====================================================================
+\section{The Dashboard and the search-mode detector}
+
+\subsection{What the screen does}
+
+The Dashboard is the real application's post-login home. It carries a ``4 Ways to Search''
+explainer card, a large search box, an Import/Export toggle, quick pills, three example
+queries, a dark statistics strip and a features grid.
+
+The one piece of real logic on it is the \textbf{mode detector}: as you type, a coloured
+pill appears telling you how the query will be interpreted.
+
+\begin{lstlisting}
+function detectMode(query, scopeSelected) {
+  if (/^\d/.test(query.trim())) return "hscode";
+  if (scopeSelected && query.trim()) return "ai";
+  return "product";
+}
+\end{lstlisting}
+
+\begin{jargon}{Regular expression}
+\code{/\^{}\textbackslash d/} is a \textbf{regular expression}: a tiny pattern language for
+matching text. \code{\^{}} means ``at the very start'', and \code{\textbackslash d} means
+``any digit''. So the whole pattern asks: does this string start with a digit? A query
+starting with a number is assumed to be an HS code.
+\end{jargon}
+
+\subsection{A branch that can never be reached}
+
+\begin{honest}{``Product Search'' mode is dead code, and the README claims otherwise}
+\code{detectMode} takes a \code{scopeSelected} argument, and its third branch returns
+\code{"product"} only when that argument is falsy. But \textbf{both} call sites pass the
+literal \code{true}:
+
+\begin{lstlisting}
+const mode = detectMode(query, true);   // in renderModePill
+const mode = detectMode(q, true);       // in runSearch
+\end{lstlisting}
+
+Walk the branches with \code{scopeSelected} pinned to \code{true}:
+\begin{itemize}
+\item query starts with a digit $\rightarrow$ \code{"hscode"}
+\item query is non-empty and does not start with a digit $\rightarrow$ \code{"ai"}
+\item query is empty $\rightarrow$ \code{"product"}, \emph{but} \code{renderModePill}
+  returns early on an empty query and clears the pill, so nothing renders.
+\end{itemize}
+Therefore \code{"product"} is \textbf{unreachable in the running application}. The green
+``Product Search'' pill, and its \code{.mode-pill.is-product} CSS rule, can never appear.
+This was confirmed by executing the function directly rather than by reading it.
+
+This matters because \file{README.md} states that typing a query ``flips a colored pill
+between HS Code Mode, Product Search, and AI Query Mode''. Two of those three are real. The
+third cannot happen. \textbf{The README overstates the feature.}
+
+The cause is visible one line up: \code{currentScope} exists to hold whether Import or
+Export is selected, and \code{detectMode} clearly wants to receive it. Instead the call
+sites hard-code \code{true}. Passing \code{currentScope} would not fix it either, since
+\code{currentScope} is initialised to \code{"import"} and is therefore \emph{always} truthy.
+The real design presumably starts the scope unselected (\code{null}) and only then does the
+distinction between product search and AI query mean anything.
+\end{honest}
+
+\begin{honest}{The Import/Export toggle is decorative}
+\code{currentScope} is assigned in exactly one place and read in \textbf{none}:
+\begin{lstlisting}
+document.querySelectorAll(".scope-btn").forEach(b => b.addEventListener("click", () => {
+  currentScope = b.dataset.scope;                              // written...
+  document.querySelectorAll(".scope-btn").forEach(x =>
+    x.classList.toggle("is-active", x === b));                 // ...only the class matters
+}));
+\end{lstlisting}
+Clicking Import or Export moves a green highlight and changes nothing else. Nothing in
+search, filtering or results consults it. The Dashboard card even tells the user ``AI
+Query: Select Import/Export first'', implying the toggle gates a behaviour. It does not.
+\end{honest}
+
+\subsection{Running a search}
+
+\begin{lstlisting}
+function runSearch(query) {
+  const q = (query || document.getElementById("query-input").value || "dextrose").trim();
+  const mode = detectMode(q, true);
+  ddUnlocked = false;
+  ddActivePill = null;
+  document.getElementById("dd-title").textContent =
+    mode === "hscode" ? "HS 1702.3000: Dextrose" : q;
+  document.getElementById("dd-sub").textContent =
+    "Sweeteners \u00B7 fabricated example results for this demo";
+  document.getElementById("dd-shipment-count").textContent =
+    `${COMPANIES.length * 14} shipments (demo)`;
+  renderFilters();
+  renderPills();
+  // ... prompt to pick a pill, then:
+  switchView("results");
+}
+\end{lstlisting}
+
+Note the fallback chain: an explicit argument, else whatever is in the box, else the
+literal \code{"dextrose"}. Searching with an empty box still produces a results screen.
+
+\begin{honest}{The search query does not filter anything}
+\code{runSearch} computes \code{q}, and then uses it \textbf{only as a heading}. The result
+set is never filtered by it. Search ``PVC Resin'' and you get the same four dextrose and
+urea companies as searching ``dextrose'', under a heading that says ``PVC Resin''. Search
+any number at all and the heading hard-codes ``HS 1702.3000: Dextrose'' regardless of which
+number you typed.
+
+The screen is honest at the level of a label (\code{dd-sub} reads ``fabricated example
+results for this demo'') but the illusion is thin, and an interviewer who types two
+different searches will see it immediately. This is defensible as a scripted demo, but only
+if it is stated up front rather than discovered.
+\end{honest}
+
+\begin{honest}{The shipment count is an arbitrary formula}
+\code{COMPANIES.length * 14} evaluates to \textbf{56}, and the chip reads ``56 shipments
+(demo)''. The dataset's own \code{shipments} fields sum to \textbf{125}. So the demo
+displays a headline count that contradicts its own data, computed by multiplying a company
+count by a magic number. \code{COMPANIES.reduce((a, c) => a + c.shipments, 0)} would have
+been both simpler to justify and internally consistent. The \code{(demo)} suffix carries a
+lot of weight here.
+\end{honest}
+
+% =====================================================================
+\section{The Data Dashboard: results, pills and the paywall}
+
+\subsection{The sidebar filters}
+
+\code{renderFilters()} builds the ``Refine by Product'' checkbox list by flattening every
+product name across every company:
+
+\begin{lstlisting}
+const products = [...new Set(COMPANIES.flatMap(c => c.products.map(p => p.name)))];
+\end{lstlisting}
+
+\begin{jargon}{\code{flatMap} and \code{Set}}
+\code{map} turns each item into something else. \code{flatMap} does the same but then
+flattens one level of nesting, which is what you want when each company yields an
+\emph{array} of products and you want one flat list. A \code{Set} is a collection that
+silently discards duplicates, so wrapping the list in \code{new Set(...)} and spreading it
+back out with \code{[...]} is the idiomatic JavaScript way to say ``unique values''.
+\end{jargon}
+
+That yields three filters: Dextrose Monohydrate, Dextrose Anhydrous, Urea 46\%.
+
+\begin{honest}{The filter checkboxes are inert}
+\code{renderFilters} renders real \code{<input type="checkbox">} elements with real,
+correctly computed counts beside them, and \textbf{no listener is ever attached to them}.
+Ticking one does nothing. They are convincing precisely because the counts are right, which
+makes them the most misleading control on the page: a checkbox that visibly responds to the
+mouse and changes nothing reads as broken rather than as scripted.
+\end{honest}
+
+\subsection{The four trade-direction pills}
+
+\begin{lstlisting}
+const DD_PILLS = [
+  { id: "foreign-suppliers", label: "Foreign Suppliers", sub: "Import → Sellers",
+    filter: c => c.country !== "Pakistan" },
+  { id: "foreign-buyers",    label: "Foreign Buyers",    sub: "Export → Buyers",
+    filter: c => c.country !== "Pakistan" },
+  { id: "pk-buyers",         label: "Pakistani Buyers",  sub: "Import → Local Buyers",
+    filter: c => c.country === "Pakistan" },
+  { id: "pk-suppliers",      label: "Pakistani Suppliers", sub: "Export → Local Sellers",
+    filter: c => c.country === "Pakistan" }
+];
+\end{lstlisting}
+
+Storing the filter as a function on the data object is a neat touch: \code{selectPill} does
+not need to know what any pill \emph{means}, it just calls
+\code{COMPANIES.filter(pill.filter)}.
+
+\begin{honest}{Four pills, two behaviours}
+Read the predicates. ``Foreign Suppliers'' and ``Foreign Buyers'' have \textbf{identical}
+filters. So do ``Pakistani Buyers'' and ``Pakistani Suppliers''. Verified by running them:
+
+\begin{center}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Pill} & \textbf{Predicate} & \textbf{Results} \\
+\midrule
+Foreign Suppliers   & \code{country !== "Pakistan"} & 3 \\
+Foreign Buyers      & \code{country !== "Pakistan"} & 3 (the same 3) \\
+Pakistani Buyers    & \code{country === "Pakistan"} & 1 \\
+Pakistani Suppliers & \code{country === "Pakistan"} & 1 (the same 1) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The supplier/buyer axis is \textbf{pure decoration}: only the country axis does anything.
+Clicking ``Foreign Buyers'' after ``Foreign Suppliers'' shows the identical three
+Brazilian companies, and the only visible difference is the result-count line, which reads
+``3 Buyers found'' instead of ``3 Suppliers found'' because of this:
+\begin{lstlisting}
+${results.length} ${pill.label.includes("Buyer") ? "Buyers" : "Suppliers"} found
+\end{lstlisting}
+That is a string test on a display label to decide a noun, which also means it silently
+depends on the label never being reworded.
+
+The demo's \file{README.md} is careful here and says the pills ``filter the same fabricated
+company set by country'', which is accurate. The screen is less careful than the README.
+\end{honest}
+
+\subsection{The category paywall, and a real bug}
+
+When a pill is selected and \code{ddUnlocked} is false, a banner is rendered below the
+results offering to unlock the whole category.
+
+\begin{honest}{The paywall advertises 500 tokens and charges 5}
+This is a genuine defect, not a design choice. The button label and the arithmetic
+disagree by a factor of 100:
+
+\begin{lstlisting}
+<button ... id="unlock-category-btn">Unlock for 500 Tokens</button>
+...
+if (tokenBalance < 5) { showModal("modal-insufficient"); return; }
+tokenBalance -= 5;
+\end{lstlisting}
+
+The user is told it costs 500. The code requires 5 and deducts 5. Since the user starts
+with 7 tokens, the button \emph{works}, which is exactly why the bug survives: nothing
+appears broken. You click a button marked 500, you have 7, and it succeeds.
+
+Worse, the cost 5 is a \textbf{magic number written twice}, once in the guard and once in
+the deduction, with the advertised price a third, unrelated literal in an HTML string. All
+three should be one constant. Compare the per-contact flow, which consistently uses 1 in
+the label, the guard and the deduction.
+
+Which number is wrong is a judgment call. Against the plan grants (Starter gives 20 tokens
+for \$29/mo), a 500-token category unlock is absurd: no plan except Enterprise could ever
+afford one. So the \emph{label} is almost certainly the typo and 5 is the intended price.
+Either way, one of the two must change.
+\end{honest}
+
+\subsection{The locked result cards}
+
+\begin{lstlisting}
+.dd-card.is-locked .dd-card__actions { filter: blur(2px); pointer-events: none; opacity: .6; }
+\end{lstlisting}
+
+Locked cards blur their action buttons and set \code{pointer-events: none}, which makes
+the element ignore the mouse entirely.
+
+\begin{honest}{The blur is cosmetic, and here that is fine, but know why}
+A CSS blur hides nothing. The text is in the DOM, and anyone can read it in the developer
+tools or by deleting one class. In the real ZaraiLink, a paywall implemented this way
+would be a serious data leak: the paid-for contact details would be sitting in the page for
+anyone who pressed F12.
+
+In \emph{this} demo it is harmless, because every value behind the blur is fabricated and
+there is nothing to protect. But the pattern is only safe here for a reason that does not
+transfer, and the correct answer to ``is this how the real one works?'' is that a real
+paywall must withhold the data at the server and never send it.
+\end{honest}
+
+% =====================================================================
+\section{The Trade Directory and the Watchlist}
+
+\subsection{Rendering the grid}
+
+\begin{lstlisting}
+function renderDirectory() {
+  document.getElementById("td-title").textContent =
+    currentRole === "Supplier" ? "Find Suppliers" : "Find Buyers";
+  // ... lede and switch-button text likewise
+  const query = (document.getElementById("td-search-input").value || "").toLowerCase();
+  const results = COMPANIES.filter(c => c.name.toLowerCase().includes(query));
+  document.getElementById("directory-grid").innerHTML =
+    results.map(c => companyCardHtml(c)).join("")
+    || `<p style="color:var(--text-2)">No suppliers found.</p>`;
+}
+\end{lstlisting}
+
+The directory search box \emph{does} work, unlike the Dashboard's: it filters on company
+name, case-insensitively, on every keystroke. Lowercasing both sides is the standard trick
+for a case-insensitive contains-match. Note the \code{||} fallback: \code{[].join("")}
+produces an empty string, which is falsy, so the empty-state message appears automatically.
+
+\begin{honest}{Three defects in one small function}
+\begin{enumerate}
+\item \textbf{\code{currentRole} changes only nouns.} Switching to ``Find Buyers'' rewrites
+  the heading, the lede and the button, and shows \textbf{the same four companies}. There is
+  no buyer/supplier distinction in the data at all. The Trade Directory has exactly one
+  mode wearing two hats.
+\item \textbf{The empty state is hard-coded to ``No suppliers found.''} Search for
+  nonsense while in Buyer mode and it still says ``suppliers''. The one string that was
+  supposed to vary with \code{currentRole} is the one that does not.
+\item \textbf{The search box is never cleared.} \code{renderDirectory} reads the input but
+  nothing resets it. Type ``Northgate'', navigate to a profile, come back via ``Back to
+  Directory'', and the directory silently still shows one company, because the stale query
+  is still in the box driving the filter.
+\end{enumerate}
+\end{honest}
+
+\subsection{The watchlist, and a real state bug}
+
+The star button on each card carries \code{data-watch="c1"}, and the delegated handler
+toggles membership of a \code{Set}:
+
+\begin{lstlisting}
+const watchBtn = e.target.closest("[data-watch]");
+if (watchBtn) {
+  const id = watchBtn.dataset.watch;
+  if (watchedIds.has(id)) watchedIds.delete(id); else watchedIds.add(id);
+  renderDirectory();      // <-- always the directory, never the watchlist
+  return;
+}
+\end{lstlisting}
+
+\begin{honest}{Un-starring from the Watchlist screen does nothing visible}
+\code{companyCardHtml} is shared by both grids, so the Watchlist screen renders star
+buttons too. But the handler \textbf{unconditionally} calls \code{renderDirectory()} and
+never \code{renderWatchlist()}. So on the Watchlist screen:
+
+\begin{enumerate}
+\item You click the star to remove a company.
+\item \code{watchedIds} correctly drops the id. The model is now right.
+\item \code{renderDirectory()} re-renders a grid on a \emph{hidden} screen.
+\item The Watchlist grid in front of you is never re-rendered, so the star stays gold and
+  the company stays on the list.
+\end{enumerate}
+
+The user sees a dead button. Navigating away and back makes the change appear, which is the
+signature of exactly this class of bug: the model updated, the view did not. The fix is one
+line, re-rendering whichever grid is currently active, or simply calling both. This is the
+most likely bug for an interviewer to trip over by accident, because starring things and
+then visiting the watchlist to unstar one is the obvious way to explore the feature.
+\end{honest}
+
+\subsection{The star icon trick}
+
+\begin{lstlisting}
+${icon("star", 15).replace('fill="none"', watched ? 'fill="currentColor"' : 'fill="none"')}
+\end{lstlisting}
+
+\code{icon()} returns an SVG string whose \emph{first} \code{fill="none"} is on the
+\code{<svg>} element itself, so replacing the first occurrence flips the star between
+outlined and filled.
+
+\begin{honest}{It works because of an accident of attribute order}
+\code{String.replace} with a string pattern replaces \textbf{only the first match}. This
+code depends on \code{fill="none"} appearing on the \code{<svg>} wrapper before it appears
+anywhere in the path data. That is true today. Reorder the attributes in \code{icon()},
+or add an icon whose path contains \code{fill="none"}, and this silently paints the wrong
+element. A \code{fill} parameter on \code{icon()} would cost three lines and remove the
+landmine. Note also that the false branch replaces \code{fill="none"} with
+\code{fill="none"}, which is a no-op written out longhand.
+\end{honest}
+
+% =====================================================================
+\section{The Company Profile: masking, seniority, and the unlock flow}
+
+\subsection{Masking}
+
+Locked contact details are shown mangled rather than hidden, so the user can see that
+something real is there:
+
+\begin{lstlisting}
+function maskEmail(email) {
+  if (!email) return "";
+  const [user, domain] = email.split("@");
+  return `${user[0]}\u2022\u2022\u2022\u2022\u2022@${domain}`;
+}
+function maskPhone(phone) {
+  if (!phone) return "";
+  return phone.slice(0, 3) + " \u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
+}
+\end{lstlisting}
+
+\begin{jargon}{Why this listing shows \code{\textbackslash u2022}}
+The real source contains the literal bullet character U+2022, typed directly. This
+document's typesetter has no glyph for it and cannot print it, so each bullet is shown
+above as \code{\textbackslash u2022}, which is JavaScript's escape for exactly the same
+character. The two forms are interchangeable in real code: the listing above is valid
+JavaScript and behaves identically to what is in the file. Only the notation differs.
+\end{jargon}
+
+So \code{e.marsh@meridianagrotrade.example.com} renders as the first letter, five bullets,
+then the full domain; and \code{+55 11 4820-1187} renders as \code{+55} followed by a
+fixed bullet pattern. A CSS blur is layered on top via \code{.contact-row.is-masked}.
+
+\begin{honest}{The mask leaks the domain, and the phone mask lies about length}
+Two things worth noticing:
+\begin{itemize}
+\item \code{maskEmail} preserves the \textbf{entire domain}. Since the domain is derived
+  from the company name, and you are looking at that company's profile, that is not much of
+  a leak here. But it means the mask hides only the local part.
+\item \code{maskPhone} emits a \textbf{fixed} pattern regardless of the real number's
+  length. The real number is 15 characters; the mask is always the first 3 plus the same
+  12-character shape. It therefore does not preserve length, which is arguably better for
+  privacy and worse for realism.
+\item \code{maskEmail} would produce the string \code{"undefined"} followed by bullets if
+  handed an email with no local part, since \code{user[0]} on an empty string is
+  \code{undefined} and template literals stringify it. The \code{if (!email)} guard catches
+  \code{null} and \code{""} but not \code{"@domain.com"}. No such value exists in the
+  fabricated data, so this cannot fire today.
+\end{itemize}
+The README claims these use ``the same masking pattern as the real \code{maskValue()}''.
+That claim cannot be checked from this repository, since the real function is not here.
+\textbf{Treat it as inferred.}
+\end{honest}
+
+\subsection{The seniority classifier}
+
+Each contact gets a coloured badge derived from their job title by an ordered chain of
+regular expressions:
+
+\begin{lstlisting}
+function getSeniorityBadge(designation) {
+  const d = (designation || "").toLowerCase();
+  if (/(ceo|chief|director|owner|partner|president|founder)/.test(d))
+    return ["Decision Maker", "decision"];
+  if (/procurement/.test(d)) return ["Procurement", "procurement"];
+  if (/sales/.test(d))       return ["Sales", "sales"];
+  if (/(manag|head)/.test(d))return ["Management", "management"];
+  return ["Team Member", "team"];
+}
+\end{lstlisting}
+
+Note \code{manag} rather than \code{manager}: the truncated stem deliberately catches
+``Manager'', ``Managing'' and ``Management'' with one pattern. That is a nice touch.
+
+Running it against all five fabricated contacts gives:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Designation} & \textbf{Badge} & \textbf{Matched on} \\
+\midrule
+Head of Export Sales & Sales          & \code{sales} (before \code{head} is tested) \\
+Managing Director    & Decision Maker & \code{director} \\
+Procurement Manager  & Procurement    & \code{procurement} (before \code{manag}) \\
+Founder \& CEO       & Decision Maker & \code{founder} \\
+Sales Director       & Decision Maker & \code{director} (before \code{sales}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{honest}{First match wins, and the ordering produces two odd results}
+The chain is ordered by intended priority, and for the most part that is correct: a
+``Managing Director'' should read as a decision maker, not as management, and the ordering
+delivers that.
+
+But look at the two \code{sales} rows. ``Sales Director'' is badged \textbf{Decision
+Maker}, never Sales, because \code{director} is tested first. Meanwhile ``Head of Export
+Sales'' is badged \textbf{Sales}, not Management, because \code{sales} is tested before
+\code{head}. So of the two contacts with ``Sales'' in the title, the \emph{more} senior one
+loses the Sales badge and the less senior one keeps it. Both outcomes are arguably
+defensible, but they are an emergent consequence of ordering rather than a decision anyone
+made, and the classifier can only ever return one badge where a real title genuinely
+carries two axes (function and seniority).
+
+Of five fabricated contacts, three land on ``Decision Maker''. The ``Management'' and
+``Team Member'' branches are never exercised by the shipped data, so two of the five CSS
+badge colours are dead in practice.
+\end{honest}
+
+\subsection{The unlock flow}
+
+This is the centrepiece of the demo, and the thing the README is proudest of: the real
+application unlocks contacts \textbf{one at a time}, not per company, and the demo
+reproduces that.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{
+\begin{tikzpicture}[node distance=9mm]
+  \node[box] (btn) {User clicks\\``Unlock Contact Details''};
+  \node[box, below=of btn] (req) {\code{requestUnlock(contactId)}\\\footnotesize sets \code{pendingUnlock = \{companyId, contactId\}}};
+  \node[box, below=of req] (modal) {\code{modal-confirm} opens\\\footnotesize ``Unlock X's details for 1 token?''};
+  \node[dec, below=11mm of modal] (choice) {confirm?};
+  \node[box, left=22mm of choice] (cancel) {\code{pendingUnlock = null}\\\footnotesize nothing spent};
+  \node[dec, below=11mm of choice] (funds) {\code{tokenBalance}\\$\geq 1$?};
+  \node[box, right=26mm of funds] (poor) {\code{modal-insufficient}\\\footnotesize \code{pendingUnlock = null}};
+  \node[box, below=11mm of funds] (spend) {\code{tokenBalance -= 1}\\\code{k.unlocked = true}};
+  \node[box, below=of spend] (rerender) {\code{renderTokenBalance()}\\\code{renderContacts(c)}};
+  \node[box, below=of rerender] (ok) {\code{modal-success}\\\footnotesize shows the revealed values};
+
+  \draw[flow] (btn) -- (req);
+  \draw[flow] (req) -- (modal);
+  \draw[flow] (modal) -- (choice);
+  \draw[flow] (choice) -- node[lbl, above] {no} (cancel);
+  \draw[flow] (choice) -- node[lbl, right] {yes} (funds);
+  \draw[flow] (funds) -- node[lbl, above] {no} (poor);
+  \draw[flow] (funds) -- node[lbl, right] {yes} (spend);
+  \draw[flow] (spend) -- (rerender);
+  \draw[flow] (rerender) -- (ok);
+\end{tikzpicture}}
+\caption{The per-contact unlock. Only the confirmed contact flips; every other contact on the page stays locked.}
+\end{figure}
+
+The \code{pendingUnlock} variable is what makes the modal work. The modal's OK button is a
+single, fixed element in the HTML; it cannot know which contact it is for. So
+\code{requestUnlock} stashes the target, and \code{confirmUnlock} picks it back up:
+
+\begin{lstlisting}
+function confirmUnlock() {
+  hideModal("modal-confirm");
+  if (!pendingUnlock) return;
+  if (tokenBalance < 1) { showModal("modal-insufficient"); pendingUnlock = null; return; }
+  const c = COMPANIES.find(x => x.id === pendingUnlock.companyId);
+  const k = c.contacts.find(x => x.id === pendingUnlock.contactId);
+  tokenBalance -= 1;
+  k.unlocked = true;
+  renderTokenBalance();
+  renderContacts(c);
+  document.getElementById("success-text").textContent = `${k.name} \u00B7 ${k.phone} \u00B7 ${k.email}`;
+  showModal("modal-success");
+  pendingUnlock = null;
+}
+\end{lstlisting}
+
+This function is careful in ways worth pointing out under questioning: it re-checks the
+balance at confirm time rather than trusting the check made when the button was drawn; it
+clears \code{pendingUnlock} on every exit path including the failure ones; and it mutates
+exactly one contact's \code{unlocked} flag before re-rendering the whole contact list from
+the model. The pattern (change the model, then re-render from the model) is the right one,
+and it is the same pattern the watchlist bug above gets wrong.
+
+\begin{honest}{Two small holes in an otherwise solid flow}
+\begin{itemize}
+\item \textbf{The confirm modal cannot be dismissed by clicking the backdrop or pressing
+  Escape.} \code{.zl-modal-overlay} covers the screen and only \code{\#confirm-cancel}
+  closes it. Every modal on the page has this property. It is a one-listener fix and a
+  standard expectation.
+\item \textbf{The success modal restates the data that is already on the page.} It writes
+  name, phone and email into \code{success-text} immediately after
+  \code{renderContacts} has already revealed exactly those values behind it. Harmless, but
+  redundant.
+\item \textbf{Unlocking is irreversible without a reload}, since \code{unlocked} is mutated
+  on the fixture itself. Demoing the locked state twice in one session is impossible.
+\end{itemize}
+\end{honest}
+
+\subsection{The token economy, end to end}
+
+\begin{center}
+\begin{tabular}{@{}lrl@{}}
+\toprule
+\textbf{Event} & \textbf{Tokens} & \textbf{Consistent?} \\
+\midrule
+Starting balance          & $+7$   & \\
+Unlock one contact        & $-1$   & yes: label, guard and deduction all say 1 \\
+Unlock a category         & $-5$   & \textbf{no}: the button says 500 \\
+Buy Starter (\$29/mo)     & $+20$  & \\
+Buy Growth (\$79/mo)      & $+75$  & \\
+Buy Enterprise (\$249/mo) & $+300$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+With four lockable contacts in the whole dataset and a starting balance of 7, a user can
+unlock \emph{everything} and still have 3 tokens left. The scarcity the screen is built to
+dramatise never actually bites.
+
+\begin{honest}{Buying a plan is an unconditional token faucet}
+\begin{lstlisting}
+const plan = SUBSCRIPTION_PLANS.find(p => p.id === buyPlanBtn.dataset.buyPlan);
+tokenBalance += plan.tokens;
+renderTokenBalance();
+buyPlanBtn.innerHTML = `${icon("check-circle", 13)} Tokens added`;
+setTimeout(() => { buyPlanBtn.textContent = "Get Plan"; }, 2000);
+\end{lstlisting}
+No payment, no state, no limit. Click ``Get Plan'' on Enterprise ten times and you have
+3,000 tokens. There is no notion of a \emph{current} plan at all: the plan cards are a
+button that adds a number. For a demo that is a reasonable shortcut, but the Subscription
+screen is the one screen where nothing is really being modelled.
+
+Also note the two-second \code{setTimeout} restores the label with \code{textContent} after
+setting it with \code{innerHTML}. That is correct here, and mildly lucky: the icon SVG is
+written in as markup and then wiped by a plain-text assignment, which happens to be exactly
+what is wanted.
+\end{honest}
+
+\begin{honest}{The insufficient-funds modal has a dead button}
+\code{\#insufficient-buy} is labelled ``Buy Tokens'' and carries
+\code{data-view="subscription"}, so the delegated navigation handler fires and switches to
+the Subscription screen. But it \emph{also} has its own listener, added later, that calls
+\code{hideModal}. Both run. The result is correct by accident: the modal closes and the
+view changes. The ordering works only because the delegated handler is on \code{<body>} and
+therefore runs after the element's own listener during bubbling. It is fragile, and the
+\code{data-view} attribute alone would have done the whole job if \code{hideModal} were
+called from the navigation branch.
+\end{honest}
+
+% =====================================================================
+\section{Presentation: icons, fonts and colour}
+
+\subsection{The icon set}
+
+\file{icons.js} is a single function over a lookup table of 20 SVG path fragments:
+
+\begin{lstlisting}
+function icon(name, size) {
+  size = size || 16;
+  const paths = { "search": '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>', /* ... */ };
+  const body = paths[name] || "";
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+    stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+}
+\end{lstlisting}
+
+\begin{jargon}{SVG, stroke, and \code{currentColor}}
+\textbf{SVG} draws pictures with maths rather than pixels, so an icon stays sharp at any
+size. \code{stroke} is the colour of the line; \code{fill} is the colour inside it. These
+icons are outlines, so they set \code{fill="none"} and stroke only. \code{currentColor} is
+a keyword meaning ``whatever the CSS text colour is here'', which is why one icon
+definition works on a dark navbar and a white card without being redefined.
+\end{jargon}
+
+Every icon shares Lucide's 24 by 24 viewBox, 2px stroke and round caps, which is the whole
+point: the real application uses Lucide, and matching those three parameters is what makes
+a hand-drawn icon read as belonging to the same family.
+
+\begin{honest}{An unknown icon name fails silently, and a third of the set is unused}
+\code{paths[name] || ""} means \code{icon("serch")} returns a valid, empty, invisible SVG.
+No error, no warning, just a gap. A \code{console.warn} in the fallback would cost one line.
+
+Of the 20 icons defined, several (\code{shield-check}, \code{filter}, \code{x},
+\code{moon}, \code{chevron-right}, \code{arrow-right}, \code{zap}, \code{chevron-down},
+\code{bar-chart}, \code{search}) are never called through \code{icon()}. Some are genuinely
+unused; others exist twice, because \file{index.html} pastes the \emph{same} SVG markup
+inline rather than calling the function. The moon, the zap and the chevron in the navbar are
+all hand-copied into the HTML while also sitting in the lookup table. There is one icon set
+maintained in two places.
+\end{honest}
+
+\subsection{The font, and a stale README}
+
+\file{styles.css} self-hosts a variable font:
+
+\begin{lstlisting}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/inter-variable.woff2') format('woff2-variations'),
+       url('assets/fonts/inter-variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+\end{lstlisting}
+
+\begin{jargon}{Variable font, and \code{font-display: swap}}
+An ordinary font ships one file per weight. A \textbf{variable font} ships one file that
+can be rendered at any weight on a continuous axis, which is what \code{font-weight: 100
+900} declares. \code{font-display: swap} tells the browser to draw text immediately in a
+fallback font and swap Inter in when it arrives, so the page is never blank while waiting.
+\end{jargon}
+
+The real ZaraiLink loads Inter from Google Fonts. This demo self-hosts it instead, so the
+page stays fully offline and makes no external request. Listing the same file twice with
+two \code{format()} hints is a deliberate fallback for browsers that do not understand
+\code{woff2-variations}.
+
+\begin{honest}{\file{README.md} contradicts the code about the font}
+The README's Architecture section states:
+
+\begin{quote}\itshape
+``The real app loads 'Inter' from Google Fonts; this demo stays fully self-contained and
+offline, so it falls back to the closest system font instead of fetching that externally.''
+\end{quote}
+
+That is \textbf{no longer true}. The demo does not fall back to a system font: it ships
+\file{assets/fonts/inter-variable.woff2} and uses the real Inter. The git history shows why.
+The commit ``Self-host real Inter variable font and replace emoji with Lucide-style SVG
+icons'' came \emph{after} the README paragraph was written, and the paragraph was never
+updated. \file{styles.css}'s own header comment is correct and says the demo self-hosts.
+So the repository now describes its own font strategy two different ways in two files, and
+the README is the wrong one.
+
+\textbf{The code wins. The README should be corrected.} This is exactly the kind of detail
+a careful reviewer checks, and being caught claiming a system-font fallback while shipping
+a 48 KB font file is a bad look for a project whose entire pitch is honesty about what is
+real.
+\end{honest}
+
+The font file is 48 KB, which is small for a full variable Inter (the complete Latin range
+typically runs several times that). It is therefore \emph{probably} a subset containing
+only the glyphs this page needs. \textbf{This is inferred from the file size and has not
+been confirmed by inspecting the font tables.}
+
+\subsection{Colour tokens}
+
+\file{styles.css} declares the palette as CSS custom properties, which its header comment
+states were copied 1:1 from the real application's \file{index.css} \code{:root} block:
+
+\begin{lstlisting}
+:root {
+  --primary: #10B981;      /* emerald: the brand colour */
+  --primary-hover: #059669;
+  --slate-900: #0F172A;    /* the navbar and stats strip */
+  --text: #1A1A1A;
+  --border: #E5E7EB;
+  --r-card: 16px;  --r-btn: 8px;  --wrap: 1200px;
+}
+\end{lstlisting}
+
+\begin{jargon}{CSS custom properties (variables)}
+A name starting with two hyphens declares a reusable value. \code{var(--primary)} then
+substitutes it anywhere. Change the one declaration and every use updates. These are
+usually called \textbf{design tokens} when they encode a design system's decisions rather
+than incidental values.
+\end{jargon}
+
+\begin{honest}{One token is referenced but never declared}
+\code{.zl-user-menu\_\_name} reads \code{var(--slate-200, \#e2e8f0)}. There is no
+\code{--slate-200} in the \code{:root} block, so the fallback always wins. It renders
+correctly (that fallback is the right colour) but the variable is a fiction. The palette
+declares \code{slate-900}, \code{800}, \code{700} and \code{400}, and \code{200} was
+either forgotten or dropped.
+
+Similarly the \code{.zl-theme-toggle} rule styles a moon button with hover states, and
+\file{index.html} renders that button with an \code{aria-label} of ``Toggle dark mode'',
+but \textbf{no JavaScript is attached to it and no dark theme exists in the stylesheet}.
+Clicking it does nothing at all. Same for the two quick pills ``I want to buy'' and ``I
+want to sell'', which have no \code{data-view} and no handler; the two beside them do
+navigate, which makes the dead pair harder to spot, not easier. And the \code{.zl-user-menu}
+is styled with \code{cursor: pointer} and a hover background, advertising a dropdown that
+does not exist.
+
+That is four visible controls (theme toggle, two quick pills, user menu) plus the sidebar
+checkboxes and the scope toggle that respond to the mouse and do nothing. For a demo whose
+purpose is to be clicked by strangers, dead controls are the highest-cost defect class in
+the repository: each one is an invitation for an interviewer to find the seam.
+\end{honest}
+
+% =====================================================================
+\section{Security, licensing and deployment}
+
+\subsection{XSS, and why it does not matter here}
+
+Nearly everything is rendered by building HTML strings and assigning them to
+\code{innerHTML}. There is an \code{escapeHtml} helper, and it is used on most interpolated
+values:
+
+\begin{lstlisting}
+function escapeHtml(str) {
+  return String(str == null ? "" : str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+\end{lstlisting}
+
+\begin{jargon}{XSS (cross-site scripting)}
+If an application takes text from somewhere and drops it straight into the page as HTML,
+then text containing \code{<script>} becomes a real, executing script. That is
+\textbf{XSS}. The defence is escaping: turning \code{<} into \code{\&lt;} so the browser
+draws it as a character instead of interpreting it as markup.
+\end{jargon}
+
+\begin{honest}{The escaping is incomplete, and safe only because the data is a constant}
+\code{escapeHtml} handles \code{\&}, \code{<} and \code{>}, but \textbf{not} quotes.
+Several interpolations land \emph{inside} HTML attributes, for example
+\code{data-open-profile="\$\{c.id\}"}. A value containing a double quote would break out of
+the attribute, and no amount of \code{<}-escaping stops it. Escaping \code{"} and
+\code{'} is the standard completion of this function.
+
+Several other values skip \code{escapeHtml} entirely (\code{c.shipments},
+\code{p.tokens}, the seniority label, the contact-summary string), and \code{icon()} output
+is injected raw by design.
+
+\textbf{None of this is exploitable}, and it is important to be precise about why: every
+string in this application is a hard-coded literal in \file{demo-data.js}. There is no
+user-supplied data, no network input, no URL parameter, and no storage. The two text
+inputs are read but never rendered back as HTML. The attack surface is empty.
+
+So this is not a vulnerability. It is a habit that would become one the instant this code
+met real data, which is precisely what the real ZaraiLink does. The right answer to ``is
+this safe?'' is: yes here, for a reason that would not survive contact with a backend.
+\end{honest}
+
+A full scan of every JavaScript, HTML, CSS and configuration file in the repository for
+API keys, tokens, passwords, bearer credentials, private keys and connection strings
+returned \textbf{nothing}. There are no secrets in this repository, which is what you would
+expect from a codebase with no network calls, but it was checked rather than assumed. Every
+domain in the fabricated data sits under \code{.example.com}, which is reserved by RFC 2606
+and can never resolve.
+
+\subsection{Deployment}
+
+\begin{lstlisting}
+[build]
+  publish = "."
+\end{lstlisting}
+
+The whole of \file{netlify.toml}. It declares no build command, because there is nothing to
+build: Netlify serves the folder verbatim. This is the payoff for having skipped a
+toolchain.
+
+\file{index.html} also carries \code{<meta name="robots" content="noindex">}, which asks
+search engines not to index the page. That is a deliberate and correct choice: a page full
+of invented companies with invented contact details should not turn up in a search for
+those names.
+
+\subsection{Licence}
+
+The repository is under \textbf{PolyForm Strict 1.0.0}. This is worth understanding
+because it is unusual and it is not an open-source licence.
+
+\begin{keyidea}{What PolyForm Strict actually permits}
+It grants permission to \emph{read} the source and nothing else. No use, no modification,
+no distribution, no derivative works. It is source-available, not open source.
+
+For portfolio work this is a coherent choice: the point is to let people read the code and
+judge it, not to donate it. It is especially coherent \emph{here}, where the underlying
+product is a private team project. But it should not be described as open source, and the
+copyright line reads ``Copyright 2026 Salman Adnan'' on a repository whose subject matter
+belongs to three people. The demo's code is Salman's alone, so that is defensible; the
+distinction between ``this demo's code'' and ``ZaraiLink'' is doing real work in that
+line.
+\end{keyidea}
+
+% =====================================================================
+\section{Consolidated findings}
+
+Everything below was verified by reading the source and, where it involved logic,
+by executing it.
+
+\subsection{Real defects}
+
+\begin{center}
+\begin{tabular}{@{}p{5.4cm}p{4.6cm}p{4.6cm}@{}}
+\toprule
+\textbf{Defect} & \textbf{Where} & \textbf{Effect} \\
+\midrule
+Category unlock says 500 tokens, charges 5 & \file{app.js} \code{selectPill} & Label and code disagree 100-fold \\
+Un-starring on the Watchlist re-renders the Directory & \file{app.js} \code{data-watch} branch & Button looks dead to the user \\
+``Product Search'' mode unreachable & \code{detectMode(q, true)} at both call sites & A documented feature cannot occur \\
+Empty state hard-codes ``No suppliers found.'' & \code{renderDirectory} & Wrong noun in Buyer mode \\
+Directory search box never cleared & \code{renderDirectory} & Stale filter on return from a profile \\
+Shipment chip shows 56, data sums to 125 & \code{COMPANIES.length * 14} & Self-contradicting headline \\
+\code{escapeHtml} does not escape quotes & \code{escapeHtml} & Latent; not exploitable today \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Dead code and dead controls}
+
+\begin{center}
+\begin{tabular}{@{}p{5.4cm}p{9.6cm}@{}}
+\toprule
+\textbf{Thing} & \textbf{Status} \\
+\midrule
+\code{HS\_TREE} & Declared in \file{demo-data.js}, referenced nowhere \\
+\code{company.website}, \code{company.last\_active} & Populated, never rendered \\
+\code{currentScope} & Written on every scope click, read nowhere \\
+Import/Export toggle & Moves a highlight, changes no behaviour \\
+Theme toggle (moon) & Styled and labelled, no listener, no dark theme \\
+``I want to buy'' / ``I want to sell'' pills & No \code{data-view}, no handler \\
+User menu & \code{cursor: pointer}, hover state, no dropdown \\
+``Refine by Product'' checkboxes & Real counts, no listener \\
+\code{--slate-200} & Used with a fallback, never declared \\
+10 of 20 icons in \file{icons.js} & Never called; several duplicated inline in HTML \\
+\code{.mode-pill.is-product} & Styled for a state that cannot occur \\
+Management / Team Member badges & No fabricated contact reaches those branches \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Where the README overstates the code}
+
+\begin{enumerate}
+\item \textbf{Font.} README says the demo falls back to a system font. It self-hosts Inter.
+  The code is right; the README is stale.
+\item \textbf{Search modes.} README says the pill flips between three modes. Only two are
+  reachable.
+\item \textbf{Trade-direction pills.} README is accurate (``filter by country''), but the
+  screen presents four pills that behave as two.
+\end{enumerate}
+
+\subsection{What the code does well}
+
+It is worth being equally precise about this, because the list is real:
+
+\begin{itemize}
+\item \textbf{Event delegation from \code{<body>}.} The correct architecture for an
+  \code{innerHTML}-driven UI, and the reason re-rendering is free.
+\item \textbf{Per-contact unlock state.} The README calls this out as a deliberate choice
+  over a simpler per-company toggle, and the code delivers it. \code{pendingUnlock} plus a
+  confirm-time re-check of the balance is the right shape for a two-step transaction.
+\item \textbf{Change the model, then re-render from the model.} \code{confirmUnlock} does
+  this correctly. The watchlist bug is a deviation from a pattern the codebase otherwise
+  gets right.
+\item \textbf{Filters stored as functions on the pill data.} \code{selectPill} stays
+  generic.
+\item \textbf{No build step.} A demo whose whole job is to still work in two years, opened
+  from a file path by a stranger, is exactly the case where a toolchain is a liability.
+\item \textbf{The honesty scaffolding is real and everywhere.} A yellow banner at the top
+  of every screen, a footer disclaimer, \code{noindex}, \code{.example.com} domains, and
+  ``(demo)'' and ``fabricated'' printed into the results screen itself. This is not an
+  afterthought.
+\end{itemize}
+
+\subsection{The most likely interview questions}
+
+\begin{enumerate}
+\item \textit{``Show me the search working.''} Type two different queries. The results do
+  not change. Lead with this rather than being caught by it.
+\item \textit{``What does the Import/Export toggle do?''} Nothing. It is wired to a
+  variable nothing reads.
+\item \textit{``Why does this say 500 tokens and take 5?''} A bug. Fix it before the
+  interview.
+\item \textit{``Which parts of ZaraiLink did you write?''} The README says 64 of 97
+  commits, and this repository cannot back that up. Have the private repository's history
+  ready, and name Umar Kashif and Fahad Nadeem before being asked.
+\item \textit{``Is this the real product?''} No. Every screen is a reconstruction and every
+  value is invented.
+\end{enumerate}
+
+\begin{honest}{The highest-value hour of work on this repository}
+Not a new feature. Three things, in order:
+\begin{enumerate}
+\item \textbf{Fix the 500/5 token label} and the watchlist re-render. Both are one-line
+  fixes and both are things a clicking interviewer will find.
+\item \textbf{Correct the README's font paragraph} and soften the three-modes claim. A
+  project sold on honesty cannot afford a README that overstates its own code, however
+  innocently it drifted.
+\item \textbf{Either wire up or delete the dead controls.} The theme toggle, the two quick
+  pills, the scope toggle and the sidebar checkboxes. Deleting them costs nothing and
+  removes six chances for the demo to look broken rather than scripted. A demo with fewer
+  controls that all work is strictly stronger than one with more controls where half are
+  scenery.
+\end{enumerate}
+The README's own ``What I'd do differently'' proposes adding the Trade Intelligence
+cluster (link prediction, node2vec, the GNN work). That is the right \emph{ambition} and
+the wrong \emph{next step}: adding a sixth screen to a demo with six dead controls makes
+the seam wider, not narrower.
+\end{honest}
+
+\end{document}

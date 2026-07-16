@@ -1,0 +1,357 @@
+% explainer-source-hash: f66797fe7a8c9d53245973007383b8fd1cc4dd9c9dfb65e80e4b5a7a95976308
+% explainer-source-commit: a0ae5757644677d02ec29161881badb6a764a332
+% explainer-generated: 2026-07-16
+% Regenerate with /explain-all (see WIRING.md). Do not edit this stamp by hand:
+% it is how the toolchain knows whether this document still matches the code.
+\documentclass[11pt,a4paper]{article}
+\input{preamble}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries\color{inkblue} ZaraiLink: Demo\par}
+\vspace{4pt}
+{\large\color{accent} Brief\par}
+\vspace{10pt}
+{\small A short, accurate account of what this repository is, what it proves, and where it is weak.\par}
+\end{center}
+
+\vspace{6pt}
+
+\begin{honest}{The two things that must be said first}
+\textbf{The data is fabricated.} Every company, contact, phone number, price and shipment
+figure in this repository is invented. No real trade data appears anywhere, and no code
+here makes a network request. This is an imitation of another application's screens, not
+that application.
+
+\medskip
+\textbf{ZaraiLink is a team project.} Three people built it: Salman Adnan led it, and Umar
+Kashif and Fahad Nadeem wrote real, substantial parts. The real system is private and none
+of its source is in this repository. This demo is Salman's own work; the product it depicts
+is not his alone.
+\end{honest}
+
+% =====================================================================
+\section{The problem this repository solves}
+
+ZaraiLink is an agricultural trade-intelligence platform: a Django and DRF backend, a React
+frontend, a natural-language search pipeline, hybrid retrieval, and a learning-to-rank
+model over Pakistani customs data. It is private, and it cannot be made public by one
+author acting alone.
+
+That creates a real bind. A hiring panel cannot be handed the source, and a screenshot
+proves nothing. The answer taken here is to rebuild the \emph{screens} against
+\emph{invented} data. The visual design language and the interaction patterns are things
+any browser loading the real app already downloads and renders. The private parts stay out.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.94\textwidth}{!}{
+\begin{tikzpicture}
+  \node[extbox, minimum width=48mm, minimum height=26mm, align=center] (real)
+    {\textbf{ZaraiLink}\\[3pt]\footnotesize private, 3 authors\\\footnotesize Django + DRF, React\\\footnotesize NLU, retrieval, ranking\\\footnotesize real customs data};
+  \node[box, minimum width=48mm, minimum height=26mm, right=44mm of real, align=center] (demo)
+    {\textbf{zarailink-demo}\\[3pt]\footnotesize public, Salman alone\\\footnotesize HTML, CSS, vanilla JS\\\footnotesize no backend, no build\\\footnotesize fabricated data};
+  \draw[flow] ($(real.east)+(0,7mm)$) -- node[lbl, above, align=center] {screens, tokens,\\interactions} ($(demo.west)+(0,7mm)$);
+  \draw[dflow, draw=warnred] ($(real.east)+(0,-5mm)$) -- node[lbl, below, align=center, text=warnred] {logic, models, data\\\textbf{not copied}} ($(demo.west)+(0,-5mm)$);
+\end{tikzpicture}}
+\caption{The demo copies the surface and deliberately copies none of the private logic.}
+\end{figure}
+
+% =====================================================================
+\section{What it is, technically}
+
+Five files, about 1,100 lines, no framework and no build step. What sits in the repository
+is exactly what the browser runs; you can open \file{index.html} from a file path, offline,
+and it works.
+
+\begin{center}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{File} & \textbf{Role} & \textbf{Lines} \\
+\midrule
+\file{app.js}       & Routing, filtering, unlocking, all rendering & 399 \\
+\file{styles.css}   & Colour tokens and component layout & 369 \\
+\file{index.html}   & Six screens as static markup & 271 \\
+\file{demo-data.js} & The fabricated dataset & 70 \\
+\file{icons.js}     & A 20-entry SVG icon lookup & 34 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Six screens live in \file{index.html} at once. CSS hides all but the one carrying an
+\code{is-active} class, and navigation is just moving that class. All behaviour hangs off a
+\textbf{single} click listener on \code{<body>} that inspects what was clicked.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.96\textwidth}{!}{
+\begin{tikzpicture}[node distance=11mm]
+  \node[box] (dash) {\textbf{Dashboard}\\\footnotesize search home};
+  \node[box, right=22mm of dash] (results) {\textbf{Results}\\\footnotesize Data Dashboard};
+  \node[box, below=of dash] (dir) {\textbf{Directory}};
+  \node[box, right=22mm of dir] (profile) {\textbf{Profile}\\\footnotesize contact unlock};
+  \node[box, below=of dir] (watch) {\textbf{Watchlist}};
+  \node[box, right=22mm of watch] (sub) {\textbf{Subscription}};
+  \draw[flow] (dash) -- node[lbl, above] {search} (results);
+  \draw[flow] (dash) -- node[lbl, left] {nav} (dir);
+  \draw[flow] (dir) -- node[lbl, above] {open} (profile);
+  \draw[flow] (results) -- node[lbl, right] {card} (profile);
+  \draw[flow] (dir) -- node[lbl, left] {nav} (watch);
+  \draw[flow] (watch) -- node[lbl, above] {nav} (sub);
+\end{tikzpicture}}
+\caption{Six screens, one page. No URL ever changes.}
+\end{figure}
+
+\begin{keyidea}{Why event delegation is the right call here}
+Every grid on these screens is drawn by writing an HTML string into \code{innerHTML}, which
+destroys and recreates the elements. Any listener attached directly to a button would be
+thrown away on every render. Listening once on \code{<body>} and using
+\code{e.target.closest(...)} to find what was hit means re-rendering is free and breaks
+nothing. It is the best structural decision in the codebase.
+\end{keyidea}
+
+% =====================================================================
+\section{What actually works}
+
+\begin{itemize}
+\item \textbf{Per-contact unlocking.} The real application unlocks contacts one at a time,
+  not per company, and the demo reproduces that faithfully. Each contact carries its own
+  \code{unlocked} flag; a confirm modal stashes the pending target, re-checks the token
+  balance at confirm time rather than trusting the earlier check, spends one token, flips
+  exactly one contact, and re-renders from the model. This is the demo's centrepiece and it
+  is correct.
+\item \textbf{Masking.} Locked phone and email values are rendered mangled (first character,
+  then bullets, domain preserved) and blurred with CSS, then flip to their real fabricated
+  values only for the specific contact that was paid for.
+\item \textbf{Seniority badges.} A short ordered chain of regular expressions turns a job
+  title into one of five badges. It is genuinely reading the data, not hard-coded.
+\item \textbf{The directory search box.} Filters company names case-insensitively on every
+  keystroke, with an automatic empty state.
+\item \textbf{The honesty scaffolding.} A yellow banner on every screen, a footer
+  disclaimer, \code{noindex} in the head, all domains under the reserved
+  \code{.example.com}, and the word ``fabricated'' printed into the results screen itself.
+\item \textbf{No build step, no network, no secrets.} A scan for keys, tokens, passwords and
+  connection strings returned nothing, as expected for a codebase that talks to nobody.
+\end{itemize}
+
+% =====================================================================
+\section{Where it is weaker than it looks}
+
+This section is the point of the document. Everything below was verified by reading the
+source and, where it involved logic, by executing it.
+
+\subsection{Two real bugs}
+
+\begin{honest}{The category paywall advertises 500 tokens and charges 5}
+The button reads ``Unlock for 500 Tokens''. The code guards on \code{tokenBalance < 5} and
+then deducts 5. The user starts with 7, so the button \emph{works}, which is precisely why
+the bug survives: nothing looks broken. Against the plan grants (Starter gives 20 tokens
+per month) a 500-token unlock would be absurd, so the label is almost certainly the typo.
+The cost 5 is also a magic number written twice, with the advertised price a third,
+unrelated literal.
+\end{honest}
+
+\begin{honest}{Un-starring on the Watchlist screen does nothing visible}
+The star handler unconditionally calls \code{renderDirectory()} and never
+\code{renderWatchlist()}. Both grids share the same card template, so the Watchlist has star
+buttons. Click one there and the model updates correctly, but the re-render lands on a
+hidden screen; the grid in front of you never changes. Navigate away and back and the change
+appears, which is the signature of this class of bug.
+
+This is the most likely defect for an interviewer to hit by accident, because starring
+things and then going to the watchlist to unstar one is the obvious way to explore the
+feature.
+\end{honest}
+
+\subsection{The demo is thinner than its screens imply}
+
+\begin{itemize}
+\item \textbf{Search does not filter.} The query is used only as a heading. Search ``PVC
+  Resin'' and you get the same four dextrose and urea companies as searching ``dextrose''.
+  Any numeric query hard-codes the heading ``HS 1702.3000: Dextrose'' regardless of what was
+  typed.
+\item \textbf{Four trade-direction pills, two behaviours.} ``Foreign Suppliers'' and
+  ``Foreign Buyers'' have \emph{identical} predicates (\code{country !== "Pakistan"}), as do
+  the two Pakistani pills. Only the country axis does anything; the buyer/supplier axis is
+  decoration. Verified by running them: 3, 3, 1, 1 results, the same 3 and the same 1.
+\item \textbf{The Trade Directory has one mode wearing two hats.} Switching to ``Find
+  Buyers'' rewrites the heading and the lede and shows the same four companies. There is no
+  buyer/supplier distinction in the data. The empty state still says ``No suppliers found.''
+\item \textbf{The shipment chip contradicts the data.} It shows
+  \code{COMPANIES.length * 14}, which is 56. The dataset's own \code{shipments} fields sum
+  to 125.
+\item \textbf{Buying a plan is an unconditional faucet.} No payment, no current-plan state,
+  no limit. Click Enterprise ten times for 3,000 tokens.
+\item \textbf{The world is small.} Four companies, five contacts, one of them already free.
+  With a starting balance of 7 a user can unlock everything and still have 3 left, so the
+  scarcity the screens dramatise never bites.
+\end{itemize}
+
+\subsection{Dead controls, the highest-cost defect here}
+
+Six visible things respond to the mouse and do nothing:
+
+\begin{center}
+\begin{tabular}{@{}p{5.6cm}p{9.4cm}@{}}
+\toprule
+\textbf{Control} & \textbf{Reality} \\
+\midrule
+Import/Export toggle & \code{currentScope} is written on every click and read \textbf{nowhere} \\
+Theme toggle (moon) & Styled, \code{aria-label}led, no listener, and no dark theme exists \\
+``I want to buy'' / ``I want to sell'' & No \code{data-view}, no handler. The two pills beside them \emph{do} navigate, which makes the dead pair harder to spot \\
+User menu & \code{cursor: pointer} and a hover state advertise a dropdown that does not exist \\
+``Refine by Product'' checkboxes & Real, correctly computed counts; no listener. Convincing precisely \emph{because} the counts are right \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For a demo whose entire purpose is to be clicked by a stranger, each dead control is an
+invitation to find the seam. A demo with fewer controls that all work is strictly stronger
+than one with more controls where half are scenery.
+
+\subsection{One feature the README claims that the code cannot do}
+
+\begin{honest}{``Product Search'' mode is unreachable}
+\code{detectMode(query, scopeSelected)} returns \code{"product"} only when
+\code{scopeSelected} is falsy, but \textbf{both} call sites pass the literal \code{true}. So
+a query starting with a digit gives \code{"hscode"}, any other non-empty query gives
+\code{"ai"}, and the empty case is caught by an early return that clears the pill entirely.
+The green ``Product Search'' pill can never render. Confirmed by executing the function.
+
+The README states the pill ``flips between HS Code Mode, Product Search, and AI Query
+Mode''. Two of the three are real. Passing \code{currentScope} instead of \code{true} would
+not fix it either, since it is initialised to \code{"import"} and is always truthy; the
+intended design presumably starts the scope unselected.
+\end{honest}
+
+\subsection{Where the README and the code disagree}
+
+\begin{honest}{The README describes a font strategy the code abandoned}
+The README says the demo ``falls back to the closest system font instead of fetching''
+Inter externally. It does not. It ships \file{assets/fonts/inter-variable.woff2} and uses
+real Inter. The git history explains the drift: the commit that self-hosted the font came
+after the README paragraph was written, and the paragraph was never updated.
+\file{styles.css}'s own header comment is correct. \textbf{The code wins; the README is
+stale.}
+
+This matters more than a normal doc bug. A project sold on honesty about what is real
+cannot afford a README that overstates its own code, however innocently it drifted.
+\end{honest}
+
+\subsection{Dead data}
+
+\code{HS\_TREE} (a real fragment of the product's model: code, name, category) is declared
+and referenced nowhere; the Dashboard hard-codes the example \code{1702.3000} in HTML
+instead of reading it. \code{company.website} and \code{company.last\_active} are populated
+on every company and rendered never. Ten of the twenty icons are never called, and several
+are duplicated as inline markup in \file{index.html}, so one icon set is maintained in two
+places.
+
+\subsection{Security}
+
+Nearly everything renders through \code{innerHTML}. \code{escapeHtml} handles \code{\&},
+\code{<} and \code{>} but \textbf{not quotes}, and several values land inside HTML
+attributes where a quote would break out.
+
+This is \textbf{not exploitable}, and the reason is worth stating precisely: every string in
+the application is a hard-coded literal. There is no user-supplied data, no network input,
+no URL parameter, no storage, and the two text inputs are read but never rendered back as
+HTML. The attack surface is empty. It is not a vulnerability; it is a habit that would
+become one the instant this code met real data, which is exactly what the real ZaraiLink
+does.
+
+Likewise the paywall blur is pure CSS, so the values sit in the DOM for anyone who opens
+the developer tools. Harmless here because everything behind it is invented, but a real
+paywall must withhold data at the server and never send it.
+
+% =====================================================================
+\section{What is claimed but cannot be checked here}
+
+\begin{honest}{Three claims rest outside this repository}
+\begin{enumerate}
+\item \textbf{``64 of 97 commits''} (README). The private repository's git history is not
+  here. This is the owner's to stand behind; an interviewer who asks should be pointed at
+  the private repository.
+\item \textbf{That the screens match the real components.} The README and
+  \file{styles.css} cite specific real files (\code{Dashboard.js},
+  \code{DataDashboard.js}, \code{CompanyProfile.js}) and state the colours were copied 1:1
+  from the real \code{index.css}. None of those files are in this repository, so the fidelity
+  claim is \textbf{inferred, not verified}.
+\item \textbf{That masking mirrors the real \code{maskValue()}.} Same reason. Inferred.
+\end{enumerate}
+Separately, the font file is 48 KB, which is small for a full variable Inter, so it is
+\emph{probably} a subset. That is \textbf{inferred from file size} and was not confirmed by
+inspecting the font tables.
+\end{honest}
+
+Note also that this demo is evidence of UI reconstruction skill and product judgment. It is
+\textbf{not} evidence that the real backend works, because none of it is here.
+
+% =====================================================================
+\section{Licence and deployment}
+
+\file{netlify.toml} is two lines (\code{publish = "."}) with no build command, because
+there is nothing to build. \file{index.html} carries \code{noindex}, correctly: a page full
+of invented companies and invented contact details should not appear in a search for those
+names.
+
+The licence is \textbf{PolyForm Strict 1.0.0}, which is source-available, \emph{not} open
+source: it permits reading and nothing else. For portfolio work that is coherent, and
+especially so here, where the underlying product is a private team project. It should not be
+described as open source. The copyright line reads ``Copyright 2026 Salman Adnan'' on a
+repository whose subject matter belongs to three people; the demo's code is Salman's alone,
+so that holds, but the distinction between ``this demo's code'' and ``ZaraiLink'' is doing
+real work in that line.
+
+% =====================================================================
+\section{The highest-value hour of work}
+
+Not a new feature.
+
+\begin{enumerate}
+\item \textbf{Fix the 500/5 token label and the watchlist re-render.} Both are one-line
+  fixes; both are things a clicking interviewer will find.
+\item \textbf{Correct the README's font paragraph and soften the three-modes claim.}
+\item \textbf{Wire up or delete the dead controls.} Deleting them costs nothing and removes
+  six chances for the demo to look broken rather than scripted.
+\end{enumerate}
+
+The README's ``What I'd do differently'' proposes adding the Trade Intelligence cluster
+(link prediction, node2vec, the GNN work). That is the right \emph{ambition} and the wrong
+\emph{next step}: adding a sixth screen to a demo with six dead controls widens the seam
+rather than closing it.
+
+% =====================================================================
+\section{Glossary}
+
+\begin{description}[leftmargin=0pt, style=nextline]
+\item[Backend / frontend] The frontend runs in the browser and draws what you see; the
+  backend runs on a server and holds the data. This demo has only a frontend, and it asks
+  nobody anything.
+\item[Build step] A program that translates source the browser cannot run (JSX,
+  TypeScript, Sass) into plain HTML, CSS and JS. This demo has none, which is why it still
+  works when opened from a file path with no toolchain installed.
+\item[DOM] The browser's live, in-memory tree of the page. JavaScript changes what you see
+  by changing this tree.
+\item[Event delegation] Listening for clicks once at the top of the page and working out
+  what was hit, instead of attaching a listener to every button. Relies on \emph{bubbling},
+  the browser's habit of firing an event on an element and then on each of its ancestors.
+\item[HS code] The Harmonized System number for a traded good. Customs records are indexed
+  by it. \code{1702.3000} is dextrose.
+\item[Regular expression] A small pattern language for matching text. \code{/\^{}\textbackslash d/}
+  asks ``does this start with a digit?''
+\item[SVG] Pictures drawn with maths rather than pixels, so they stay sharp at any size.
+  \code{currentColor} means ``whatever the CSS text colour is here'', which lets one icon
+  definition work on a dark navbar and a white card.
+\item[Variable font] One font file that renders at any weight on a continuous axis, rather
+  than one file per weight.
+\item[XSS] Cross-site scripting: dropping untrusted text into a page as HTML so that
+  \code{<script>} in that text actually executes. Prevented by escaping.
+\item[Design tokens] Named, reusable values (colours, radii, widths) that encode a design
+  system's decisions. Here they are CSS custom properties in a \code{:root} block.
+\item[PolyForm Strict] A source-available licence granting permission to read the source
+  and nothing else. Not open source.
+\end{description}
+
+\end{document}
